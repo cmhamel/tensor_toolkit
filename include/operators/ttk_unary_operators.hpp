@@ -162,7 +162,7 @@ T det(const SymmetricTensor2<T, M, D>& A) {
 template<typename T, int M, int D, bool Sym>
 TTK_INLINE
 Tensor<T, M, D, 2, Sym> dev(const Tensor<T, M, D, 2, Sym>& A) {
-    return A - (1. / 3.) * trace(A) * identity<T, M, D, 2, Sym>();
+    return A - (1. / 3.) * trace(A) * identity<Tensor<T, M, D, 2, Sym>>();
 }
 
 // template<typename T, int M>

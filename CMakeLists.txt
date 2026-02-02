@@ -34,6 +34,10 @@ if(TENSOR_TOOLKIT_ENABLE_TESTS)
             GTest::gtest_main
     )
     include(GoogleTest)
+    add_test(
+        NAME ttk_unit_tests
+        COMMAND ttk_unit_tests
+    )
 endif()
 
 # Extensions
