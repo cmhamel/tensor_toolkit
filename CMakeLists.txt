@@ -42,3 +42,50 @@ include(CUDAExt)
 include(EnzymeExt)
 include(HIPExt)
 include(KokkosExt)
+
+# Installation
+include(GNUInstallDirs)
+# Install the interface library target
+install(
+    TARGETS tensor_toolkit
+    EXPORT tensor_toolkitTargets
+)
+
+# Install headers
+install(
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+)
+
+# Export targets
+install(
+    EXPORT tensor_toolkitTargets
+    FILE tensor_toolkitTargets.cmake
+    NAMESPACE tensor_toolkit::
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tensor_toolkit
+)
+
+# @PACKAGE_INIT@
+
+# include("${CMAKE_CURRENT_LIST_DIR}/tensor_toolkitTargets.cmake")
+
+include(CMakePackageConfigHelpers)
+
+write_basic_package_version_file(
+    "${CMAKE_CURRENT_BINARY_DIR}/tensor_toolkitConfigVersion.cmake"
+    VERSION 0.1.0
+    COMPATIBILITY SameMajorVersion
+)
+
+configure_package_config_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/cmake/tensor_toolkitConfig.cmake.in
+    ${CMAKE_CURRENT_BINARY_DIR}/tensor_toolkitConfig.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tensor_toolkit
+)
+
+install(
+    FILES
+        ${CMAKE_CURRENT_BINARY_DIR}/tensor_toolkitConfig.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/tensor_toolkitConfigVersion.cmake
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tensor_toolkit
+)
