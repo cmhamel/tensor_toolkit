@@ -20,6 +20,9 @@ Tensor<T, M, D, O, Args...> fill(T val) {
 // }
 
 template<typename TensorType>
+TensorType identity();
+
+template<typename TensorType>
 TensorType identity() {
     using T = typename TensorType::ValueType;
     constexpr int M = TensorType::MetricType;
