@@ -59,7 +59,7 @@ jobs:
       if: runner.os == 'Windows'
       # uses: ilammy/msvc-dev-cmd@v1
       run: |
-        choco install cmake googletest ninja
+        choco install cmake gtest ninja
         # GTest will be built as part of your project
 
     # ---------------- Configure ----------------
