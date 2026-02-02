@@ -15,7 +15,6 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # ---------- Linux ----------
           - os: ubuntu-22.04
             compiler: gcc
             cc: gcc
@@ -24,16 +23,12 @@ jobs:
             compiler: clang
             cc: clang
             cxx: clang++
-
-          # ---------- macOS ----------
           - os: macos-15
             compiler: appleclang
             cc: clang
             cxx: clang++
-
-          # ---------- Windows ----------
-          # - os: windows-2022
-          #   compiler: msvc
+          - os: windows-2022
+            compiler: msvc
 
     steps:
     - name: Checkout
@@ -74,7 +69,6 @@ jobs:
         CXX: ${{ matrix.cxx }}
       run: |
         cmake -S . -B build \
-          -G Ninja \
           -DCMAKE_BUILD_TYPE=Release \
           -DTENSOR_TOOLKIT_ENABLE_TESTS=ON
 
