@@ -33,6 +33,20 @@ file(GLOB TTK_SOURCES "src/*.cpp")
 # ---------------- Tests ----------------
 if(TENSOR_TOOLKIT_ENABLE_TESTS)
     enable_testing()
+
+    # just so we can pass on CI with windows
+    if(WIN32)
+        # Fetch GoogleTest if not found
+        include(FetchContent)
+        FetchContent_Declare(
+            googletest
+            URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
+        )
+        # Prevent overriding the parent project's compiler/linker settings
+        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+        FetchContent_MakeAvailable(googletest)
+    endif()
+
     find_package(GTest)
     add_executable(ttk_unit_tests
         unit_tests/unit_tests_main.cpp
