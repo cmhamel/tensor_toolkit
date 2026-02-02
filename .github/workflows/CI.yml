@@ -68,9 +68,7 @@ jobs:
         CC: ${{ matrix.cc }}
         CXX: ${{ matrix.cxx }}
       run: |
-        cmake -S . -B build \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DTENSOR_TOOLKIT_ENABLE_TESTS=ON
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DTENSOR_TOOLKIT_ENABLE_TESTS=ON
 
     # ---------------- Build ----------------
     - name: Build
