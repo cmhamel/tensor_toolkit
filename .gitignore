@@ -1,0 +1,5 @@
+build/
+envs/
+scripts/
+spack/
+.spack-env
