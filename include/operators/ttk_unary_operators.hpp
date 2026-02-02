@@ -6,6 +6,9 @@
 
 namespace ttk {
 
+template<typename>
+inline constexpr bool __always_false = false;
+
 template<typename T>
 TTK_INLINE
 T cbrt(T base) {
@@ -20,7 +23,8 @@ T cbrt(T base) {
     } else {
         // only supporting floats
         static_assert(
-            false,
+            // false,
+            __always_false<T>,
             "pow is only supported for floating point types"
         );
     }
@@ -207,7 +211,8 @@ T log(T base) {
         // fallback for integers (convert to double)
         // return pow(static_cast<double>(base), static_cast<double>(exp));
         static_assert(
-            false,
+            // false,
+            __always_false<T>,
             "pow is only supported for floating point types"
         );
     }
@@ -274,7 +279,8 @@ T sqrt(T base) {
         // fallback for integers (convert to double)
         // return pow(static_cast<double>(base), static_cast<double>(exp));
         static_assert(
-            false,
+            // false,
+            __always_false<T>,
             "pow is only supported for floating point types"
         );
     }
