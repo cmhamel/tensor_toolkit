@@ -14,7 +14,12 @@ if(TENSOR_TOOLKIT_ENABLE_ENZYME)
     )
     target_include_directories(tensor_toolkit
         INTERFACE
-            ${PARENT_DIR3}/include
+            $<BUILD_INTERFACE:${PARENT_DIR3}/include>
+            $<INSTALL_INTERFACE:include>
+    )
+    target_link_libraries(tensor_toolkit
+        PUBLIC INTERFACE
+            LLDEnzymeFlags
     )
     if(TENSOR_TOOLKIT_ENABLE_TESTS)
         target_compile_definitions(tensor_toolkit
