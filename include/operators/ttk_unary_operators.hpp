@@ -1,5 +1,6 @@
 #pragma once
 #include <cmath>
+#include <core/ttk_globals.hpp>
 #include <core/ttk_macros.hpp>
 #include <core/ttk_tensor.hpp>
 #include <ttk_aliases.hpp>
@@ -20,7 +21,7 @@ T cbrt(T base) {
     } else {
         // only supporting floats
         static_assert(
-            false,
+            __always_false<T>,
             "pow is only supported for floating point types"
         );
     }
@@ -161,7 +162,7 @@ T det(const SymmetricTensor2<T, M, D>& A) {
 template<typename T, int M, int D, bool Sym>
 TTK_INLINE
 Tensor<T, M, D, 2, Sym> dev(const Tensor<T, M, D, 2, Sym>& A) {
-    return A - (1. / 3.) * trace(A) * identity<T, M, D, 2, Sym>();
+    return A - (1. / 3.) * trace(A) * identity<Tensor<T, M, D, 2, Sym>>();
 }
 
 // template<typename T, int M>
@@ -207,7 +208,7 @@ T log(T base) {
         // fallback for integers (convert to double)
         // return pow(static_cast<double>(base), static_cast<double>(exp));
         static_assert(
-            false,
+            __always_false<T>,
             "pow is only supported for floating point types"
         );
     }
@@ -253,7 +254,7 @@ T pow(T base, T exp) {
     } else {
         // only supporting floats
         static_assert(
-            false,
+            __always_false<T>,
             "pow is only supported for floating point types"
         );
     }
@@ -274,7 +275,7 @@ T sqrt(T base) {
         // fallback for integers (convert to double)
         // return pow(static_cast<double>(base), static_cast<double>(exp));
         static_assert(
-            false,
+            __always_false<T>,
             "pow is only supported for floating point types"
         );
     }

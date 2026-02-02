@@ -1,4 +1,6 @@
 #pragma once
+
+#if TENSOR_TOOLKIT_ENABLE_ENZYME
 #include <enzyme/enzyme>
 #include <gtest/gtest.h>
 #include "simple_motions.hpp"
@@ -209,4 +211,7 @@ TEST(TTKMaterialUnitTests, NeoHookeanNoUniaxialStrainByRef) {
     // std::cout << "dmat.G = " << dmat->props[1] << std::endl;
 }
 
+
 } // end namspace
+
+#endif

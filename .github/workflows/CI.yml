@@ -1,0 +1,82 @@
+name: C++ CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build:
+    name: ${{ matrix.os }} / ${{ matrix.compiler }}
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-22.04
+            compiler: gcc
+            cc: gcc
+            cxx: g++
+          - os: ubuntu-22.04
+            compiler: clang
+            cc: clang
+            cxx: clang++
+          - os: macos-15
+            compiler: appleclang
+            cc: clang
+            cxx: clang++
+          - os: windows-2022
+            compiler: msvc
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # ---------------- Linux deps ----------------
+    - name: Install Linux dependencies
+      if: runner.os == 'Linux'
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          clang \
+          cmake \
+          gcc \
+          g++ \
+          libgtest-dev \
+          ninja-build
+
+    # ---------------- macOS deps ----------------
+    - name: Install macOS dependencies
+      if: runner.os == 'macOS'
+      run: |
+        brew update
+        brew install cmake googletest ninja
+
+    # ---------------- Windows deps ----------------
+    - name: Setup MSVC
+      if: runner.os == 'Windows'
+      # uses: ilammy/msvc-dev-cmd@v1
+      run: |
+        choco install cmake ninja
+        # GTest will be built as part of your project
+
+    # ---------------- Configure ----------------
+    - name: Configure
+      env:
+        CC: ${{ matrix.cc }}
+        CXX: ${{ matrix.cxx }}
+      run: |
+        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DTENSOR_TOOLKIT_ENABLE_TESTS=ON
+
+    # ---------------- Build ----------------
+    - name: Build
+      run: |
+        cmake --build build --config Release
+
+    # ---------------- Test ----------------
+    - name: Test
+      working-directory: build
+      run: |
+        ctest --output-on-failure

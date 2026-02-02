@@ -12,6 +12,15 @@ option(TENSOR_TOOLKIT_ENABLE_TESTS "Build unit tests" ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(STATUS "GCC detected: adding -fpermissive flag")
+    # fails on compiling identity method without this
+    add_compile_options(-fpermissive)
+    
+    # Option 2: per target
+    # target_compile_options(tensor_toolkit PRIVATE -fpermissive)
+endif()
+
 # ---------- Library ----------
 add_library(tensor_toolkit INTERFACE)
 target_include_directories(tensor_toolkit
@@ -24,6 +33,20 @@ file(GLOB TTK_SOURCES "src/*.cpp")
 # ---------------- Tests ----------------
 if(TENSOR_TOOLKIT_ENABLE_TESTS)
     enable_testing()
+
+    # just so we can pass on CI with windows
+    if(WIN32)
+        # Fetch GoogleTest if not found
+        include(FetchContent)
+        FetchContent_Declare(
+            googletest
+            URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
+        )
+        # Prevent overriding the parent project's compiler/linker settings
+        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+        FetchContent_MakeAvailable(googletest)
+    endif()
+
     find_package(GTest)
     add_executable(ttk_unit_tests
         unit_tests/unit_tests_main.cpp
@@ -34,6 +57,10 @@ if(TENSOR_TOOLKIT_ENABLE_TESTS)
             GTest::gtest_main
     )
     include(GoogleTest)
+    add_test(
+        NAME ttk_unit_tests
+        COMMAND ttk_unit_tests
+    )
 endif()
 
 # Extensions
