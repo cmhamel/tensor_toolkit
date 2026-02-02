@@ -1,5 +1,16 @@
-build/
+# spack stuff for local dev
 envs/
 scripts/
 spack/
-.spack-env
+.spack-env/
+
+# buid/cmake shenanigans
+build/
+CMakeCache.txt
+CMakeFiles/
+CMakeLists.txt
+cmake_install.cmake
+CTestTestfile.cmake
+Makefile
+tensor_toolkitConfig.cmake
+tensor_toolkitConfigVersion.cmake
