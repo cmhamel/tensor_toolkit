@@ -1,3 +1,4 @@
+#include <core/ttk_globals.hpp>
 #include <core/ttk_tensor.hpp>
 
 namespace ttk {
@@ -36,7 +37,7 @@ TensorType identity() {
         if constexpr (D >= 3) I(2, 2) = T(1);
         if constexpr (D >= 4) I(3, 3) = T(1);
     } else {
-        static_assert(false, "Unsupported identity");
+        static_assert(__always_false<TensorType>, "Unsupported identity");
     }
     return I;
 }
