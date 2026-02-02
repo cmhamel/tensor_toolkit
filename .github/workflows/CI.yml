@@ -49,7 +49,7 @@ jobs:
           cmake \
           gcc \
           g++ \
-          googletest \
+          libgtest-dev \
           ninja-build
 
     # ---------------- macOS deps ----------------
@@ -57,12 +57,15 @@ jobs:
       if: runner.os == 'macOS'
       run: |
         brew update
-        brew install cmake googletest ninja
+        brew install cmake libgtest-dev ninja
 
     # ---------------- Windows deps ----------------
     - name: Setup MSVC
       if: runner.os == 'Windows'
       uses: ilammy/msvc-dev-cmd@v1
+      run: |
+        choco install cmake ninja
+        # GTest will be built as part of your project
 
     # ---------------- Configure ----------------
     - name: Configure
