@@ -12,6 +12,15 @@ option(TENSOR_TOOLKIT_ENABLE_TESTS "Build unit tests" ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+    message(STATUS "GCC detected: adding -fpermissive flag")
+    # fails on compiling identity method without this
+    add_compile_options(-fpermissive)
+    
+    # Option 2: per target
+    # target_compile_options(tensor_toolkit PRIVATE -fpermissive)
+endif()
+
 # ---------- Library ----------
 add_library(tensor_toolkit INTERFACE)
 target_include_directories(tensor_toolkit
