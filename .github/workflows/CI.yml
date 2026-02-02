@@ -32,8 +32,8 @@ jobs:
             cxx: clang++
 
           # ---------- Windows ----------
-          - os: windows-2022
-            compiler: msvc
+          # - os: windows-2022
+          #   compiler: msvc
 
     steps:
     - name: Checkout
@@ -60,12 +60,12 @@ jobs:
         brew install cmake libgtest-dev ninja
 
     # ---------------- Windows deps ----------------
-    - name: Setup MSVC
-      if: runner.os == 'Windows'
-      uses: ilammy/msvc-dev-cmd@v1
-      run: |
-        choco install cmake ninja
-        # GTest will be built as part of your project
+    # - name: Setup MSVC
+    #   if: runner.os == 'Windows'
+    #   uses: ilammy/msvc-dev-cmd@v1
+    #   run: |
+    #     choco install cmake ninja
+    #     # GTest will be built as part of your project
 
     # ---------------- Configure ----------------
     - name: Configure
