@@ -14,3 +14,9 @@ CTestTestfile.cmake
 Makefile
 tensor_toolkitConfig.cmake
 tensor_toolkitConfigVersion.cmake
+
+# sandbox for looking at ir
+sandbox/
+
+# vs code
+.vscode/

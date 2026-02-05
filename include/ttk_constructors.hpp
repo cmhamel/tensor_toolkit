@@ -1,10 +1,11 @@
+#pragma once
 #include <core/ttk_globals.hpp>
 #include <core/ttk_tensor.hpp>
 
 namespace ttk {
 
 template<typename T, int M, int D, int O, bool... Args>
-TTK_INLINE
+TTK_FUNCTION
 Tensor<T, M, D, O, Args...> fill(T val) {
     Tensor<T, M, D, O, Args...> data;
     data.fill(val);
@@ -54,7 +55,7 @@ TensorType identity() {
 // }
 
 template<typename T, int M, int D, int O, bool... Args>
-TTK_INLINE
+TTK_FUNCTION
 Tensor<T, M, D, O, Args...> ones() {
     Tensor<T, M, D, O, Args...> data;
     data.fill(1.0);
@@ -62,13 +63,13 @@ Tensor<T, M, D, O, Args...> ones() {
 }
 
 template<typename T, int M, int D, int O, bool... Args>
-TTK_INLINE
+TTK_FUNCTION
 Tensor<T, M, D, O, Args...> zero() {
     return Tensor<T, M, D, O, Args...>::zeros();
 }
 
 template<typename T, int M, int D, int O, bool... Args>
-TTK_INLINE
+TTK_FUNCTION
 Tensor<T, M, D, O, Args...> zeros() {
     Tensor<T, D, O, Args...> data;
     data.fill(0.0);

@@ -4,11 +4,12 @@
 #include <core/ttk_macros.hpp>
 #include <core/ttk_tensor.hpp>
 #include <ttk_aliases.hpp>
+#include <ttk_continuum_tensor.hpp>
 
 namespace ttk {
 
 template<typename T>
-TTK_INLINE
+TTK_FUNCTION
 T cbrt(T base) {
     if constexpr (std::is_floating_point_v<T>) {
         #if defined(__CUDACC__) // device compilation
@@ -27,38 +28,15 @@ T cbrt(T base) {
     }
 }
 
-// // cross
-// template<typename T, int M>
-// TTK_INLINE
-// ContinuumVector<T, M, 3> cross(
-//     const ContinuumVector<T, M, 3>& A,
-//     const ContinuumVector<T, M, 3>& B
-// ) {
-//     return cross(A.getData(), B.getData());
-// }
-
-template<typename T, int M>
-TTK_INLINE
-Vector<T, M, 3> cross(
-    const Vector<T, M, 3>& A,
-    const Vector<T, M, 3>& B
-) {
-    Vector<T, M, 3> C;
-    C(0) = A(1) * B(2) - A(2) * B(1);
-    C(1) = A(2) * B(0) - A(0) * B(2);
-    C(2) = A(0) * B(1) - A(1) * B(0);
-    return C;
+// det
+template<typename T, int M, int D, bool Sym>
+TTK_FUNCTION
+T det(const ContinuumTensor2<T, M, D, Sym>& A) {
+    return det(A.getDataConst());
 }
 
-// // det
-// template<typename T, int M, int D, bool Sym>
-// TTK_INLINE
-// T det(const ContinuumTensor2<T, M, D, Sym>& A) {
-//     return det(A.getDataConst());
-// }
-
 template<typename T, int M, int D>
-TTK_INLINE
+TTK_FUNCTION
 T det(const Tensor2<T, M, D>& A) {
     if constexpr (D == 1) {
         return A(0, 0);
@@ -98,7 +76,7 @@ T det(const Tensor2<T, M, D>& A) {
 }
 
 template<typename T, int M, int D>
-TTK_INLINE
+TTK_FUNCTION
 T det(const SymmetricTensor2<T, M, D>& A) {
     if constexpr (D == 1) {
         return A(0, 0);
@@ -159,20 +137,26 @@ T det(const SymmetricTensor2<T, M, D>& A) {
 }
 
 // dev
+template<typename T, int M, int D, bool... Sym>
+TTK_FUNCTION
+ContinuumTensor<T, M, D, D, Sym...> dev(const ContinuumTensor<T, M, D, D, Sym...>& A) {
+    return dev(A.getDataConst());
+}
+
 template<typename T, int M, int D, bool Sym>
-TTK_INLINE
+TTK_FUNCTION
 Tensor<T, M, D, 2, Sym> dev(const Tensor<T, M, D, 2, Sym>& A) {
     return A - (1. / 3.) * trace(A) * identity<Tensor<T, M, D, 2, Sym>>();
 }
 
-// template<typename T, int M>
-// TTK_INLINE
-// SpatialTensor2<T, M, 3> dott(const TwoPointTensor2<T, M, 3>& F) {
-//     return dott(F.getDataConst());
-// }
+template<typename T, int M, int D>
+TTK_FUNCTION
+SpatialTensor2<T, M, D> dott(const TwoPointTensor2<T, M, D>& F) {
+    return dott(F.getDataConst());
+}
 
 template<typename T, int M>
-TTK_INLINE
+TTK_FUNCTION
 SymmetricTensor2<T, M, 3> dott(const Tensor2<T, M, 3>& F) {
     SymmetricTensor2<T, M, 3> B;
 
@@ -194,7 +178,7 @@ SymmetricTensor2<T, M, 3> dott(const Tensor2<T, M, 3>& F) {
 } 
 
 template<typename T>
-TTK_INLINE
+TTK_FUNCTION
 T log(T base) {
     if constexpr (std::is_floating_point_v<T>) {
         #if defined(__CUDACC__) // device compilation
@@ -215,7 +199,13 @@ T log(T base) {
 }
 
 template<typename T, int M, int D>
-TTK_INLINE
+TTK_FUNCTION
+T norm(const ContinuumVector<T, M, D>& A) {
+    return norm(A.getDataConst());
+}
+
+template<typename T, int M, int D>
+TTK_FUNCTION
 T norm(const Vector<T, M, D>& A) {
     T normA = 0.0;
     for (int i = 0; i < D; ++i) {
@@ -225,7 +215,7 @@ T norm(const Vector<T, M, D>& A) {
 }
 
 template<typename T, int M, int D>
-TTK_INLINE
+TTK_FUNCTION
 T norm(const Tensor2<T, M, D>& A) {
     T normA = 0.0;
     for (int i = 0; i < D; ++i) {
@@ -241,7 +231,7 @@ T norm(const Tensor2<T, M, D>& A) {
 // sqrt
 
 template<typename T>
-TTK_INLINE
+TTK_FUNCTION
 T pow(T base, T exp) {
     if constexpr (std::is_floating_point_v<T>) {
         #if defined(__CUDACC__) // device compilation
@@ -261,7 +251,7 @@ T pow(T base, T exp) {
 }
 
 template<typename T>
-TTK_INLINE
+TTK_FUNCTION
 T sqrt(T base) {
     if constexpr (std::is_floating_point_v<T>) {
         #if defined(__CUDACC__) // device compilation
@@ -285,14 +275,14 @@ T sqrt(T base) {
 // TODO specialize for faster methods maybe?
 // check what the compiler is doing with different
 // levels of optimization
-// template<typename T, int M, int D, bool Sym>
-// TTK_INLINE
-// T trace(const ContinuumTensor2<T, M, D, Sym>& A) {
-//     return trace(A.getDataConst());
-// }
+template<typename T, int M, int D, bool Sym>
+TTK_FUNCTION
+T trace(const ContinuumTensor2<T, M, D, Sym>& A) {
+    return trace(A.getDataConst());
+}
 
 template<typename T, int M, int D, bool Sym>
-TTK_INLINE
+TTK_FUNCTION
 T trace(const Tensor<T, M, D, 2, Sym>& A) {
     T trA = 0.0;
     for (int i = 0; i < D; ++i) {
@@ -302,7 +292,7 @@ T trace(const Tensor<T, M, D, 2, Sym>& A) {
 }
 
 template<typename T, int M, int D>
-TTK_INLINE
+TTK_FUNCTION
 Tensor2<T, M, D> transpose(const Tensor2<T, M, D>& A) {
     Tensor2<T, M, D> At;
     for (int i = 0; i < D; ++i) {
@@ -314,7 +304,7 @@ Tensor2<T, M, D> transpose(const Tensor2<T, M, D>& A) {
 }
 
 template<typename T, int M, int D>
-TTK_INLINE
+TTK_FUNCTION
 SymmetricTensor2<T, M, D> transpose(const SymmetricTensor2<T, M, D>& A) {
     return A;
 }
@@ -339,9 +329,28 @@ SymmetricTensor2<T, M, D> transpose(const SymmetricTensor2<T, M, D>& A) {
 // rotationtensor
 // skew
 // symmetric
+// template<typename T, int M, int D>
+
+template<typename T, int M, int D>
+Tensor2<T, M, D> symmetric(const Tensor2<T, M, D>& A) {
+    SymmetricTensor2<T, M, D> Asym(0.5 * (A + transpose(A)));
+    return Asym;
+}
+
+template<typename T, int M, int D>
+SymmetricTensor2<T, M, D> symmetric(const SymmetricTensor2<T, M, D>& A) {
+    return A;
+}
+
 // tdot
+template<typename T, int M, int D>
+TTK_FUNCTION
+MaterialTensor2<T, M, D> tdot(const MaterialTensor2<T, M, D>& F) {
+    return tdot(F.getDataConst());
+}
+
 template<typename T, int M>
-TTK_INLINE
+TTK_FUNCTION
 SymmetricTensor2<T, M, 3> tdot(const Tensor2<T, M, 3>& F) {
     SymmetricTensor2<T, M, 3> C;
 
@@ -363,8 +372,15 @@ SymmetricTensor2<T, M, 3> tdot(const Tensor2<T, M, 3>& F) {
 }
 // tovoigt
 // tovoigt!
+// vol
 template<typename T, int M, int D, bool Sym>
-TTK_INLINE
+TTK_FUNCTION
+T vol(const ContinuumTensor<T, M, D, 2, Sym>&A) {
+    return vol(A.getDataConst());
+}
+
+template<typename T, int M, int D, bool Sym>
+TTK_FUNCTION
 T vol(const Tensor<T, M, D, 2, Sym>& A) {
     T trA = trace(A);
     return (1. / 3.) * trA;

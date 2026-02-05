@@ -1,4 +1,5 @@
 #pragma once
+#include <cassert> // for assert (TODO replace with better error handling)
 #include <iomanip>
 #include "ttk_indexing.hpp"
 #include "ttk_lengths.hpp"
@@ -19,42 +20,58 @@ public:
     // derived template args
     static constexpr int Length = TensorLength<D, O, Args...>::value;
 
-    TTK_INLINE
+    TTK_FUNCTION
+    // TTK_DEFAULTED_FUNCTION
     Tensor() noexcept = default;
+    // TTK_FUNCTION
+    // Tensor() noexcept {
+    //     fill(T{});
+    // }
 
-    TTK_INLINE
-    constexpr Tensor(T value) noexcept {
+    TTK_FUNCTION
+    Tensor(T value) noexcept {
         fill(value);
     }
 
-    TTK_INLINE
+    // TODO fix assert
+    // TTK_FUNCTION
+    // Tensor(std::initializer_list<T> data_) noexcept {
+    //     assert(data_.size() == Length);
+    //     int i = 0;
+    //     for (T v : data_) {
+    //         data[i++] = v;
+    //     }
+    // }
+    TTK_FUNCTION
     constexpr Tensor(std::initializer_list<T> data_) noexcept {
         assert(data_.size() == Length);
         std::copy(data_.begin(), data_.end(), data);
     }
 
-    TTK_INLINE
-    void fill(T value) {
+    TTK_FUNCTION
+    void fill(T value) noexcept {
         std::fill(std::begin(data), std::end(data), value);
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
+    // constexpr T* getData() {
     T* getData() const {
+        // return data;
         return data;
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
     const T* getDataConst() const {
         return data;
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
     static constexpr int getLength() {
         return Length;
     }
 
     template<typename... Ids>
-    TTK_INLINE
+    TTK_FUNCTION
     constexpr int linear_index(Ids... ids) const {
         static_assert(
             sizeof...(Ids) == O,
@@ -65,7 +82,7 @@ public:
 
     // operator overloading
     template<typename... Ids>
-    TTK_INLINE
+    TTK_FUNCTION
     T operator()(Ids... ids) const {
         static_assert(
             sizeof...(Ids) == O,
@@ -75,7 +92,7 @@ public:
     }
 
     template<typename... Ids>
-    TTK_INLINE
+    TTK_FUNCTION
     T& operator()(Ids... ids) {
         static_assert(
             sizeof...(Ids) == O,
@@ -84,7 +101,7 @@ public:
         return data[linear_index(ids...)];
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
     Tensor operator+(const Tensor& B) const {
         Tensor C;
         for (int i = 0; i < Length; ++i) {
@@ -93,7 +110,7 @@ public:
         return C;
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
     Tensor operator-(const Tensor& B) const {
         Tensor C;
         for (int i = 0; i < Length; ++i) {
@@ -102,7 +119,7 @@ public:
         return C;
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
     Tensor operator*(const T& val) const {
         Tensor C;
         for (int i = 0; i < Length; ++i) {

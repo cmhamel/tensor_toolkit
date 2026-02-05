@@ -4,12 +4,12 @@
 
 namespace ttk {
 
-TTK_INLINE
+TTK_FUNCTION
 constexpr int pair_index(int D, int a, int b) noexcept {
     return a * D + b;   // no minor symmetry
 }
 
-TTK_INLINE
+TTK_FUNCTION
 constexpr int upper_triangular(int i, int j) noexcept {
     return (i <= j)
         ? (j * (j + 1)) / 2 + i
@@ -22,7 +22,7 @@ struct LinearIndex;
 template<>
 struct LinearIndex<1> {
     template<typename... Ids>
-    TTK_INLINE
+    TTK_FUNCTION
     static constexpr int compute(int /*D*/, Ids... ids) noexcept {
         static_assert(sizeof...(Ids) == 1);
         return (ids, ...);
@@ -31,7 +31,7 @@ struct LinearIndex<1> {
 
 template<>
 struct LinearIndex<2, FULL> {
-    TTK_INLINE
+    TTK_FUNCTION
     static constexpr int compute(int D, int i, int j) noexcept {
         return i * D + j;
     }
@@ -39,7 +39,7 @@ struct LinearIndex<2, FULL> {
 
 template<>
 struct LinearIndex<2, SYMM> {
-    TTK_INLINE
+    TTK_FUNCTION
     static constexpr int compute(int D, int i, int j) noexcept {
         // canonicalize indices
         if (i > j) {
@@ -56,7 +56,7 @@ struct LinearIndex<2, SYMM> {
 
 template<>
 struct LinearIndex<3, FULL, FULL> {
-    TTK_INLINE
+    TTK_FUNCTION
     static constexpr int compute(int D, int i, int j, int k) noexcept {
         return i * D * D + j * D + k;
     }
@@ -64,7 +64,7 @@ struct LinearIndex<3, FULL, FULL> {
 
 template<>
 struct LinearIndex<4, FULL, FULL, FULL> {
-    TTK_INLINE
+    TTK_FUNCTION
     static constexpr int compute(int D, int i, int j, int k, int l) noexcept {
         return ((i * D + j) * D + k) * D + l;
     }
@@ -73,7 +73,7 @@ struct LinearIndex<4, FULL, FULL, FULL> {
 template<>
 struct LinearIndex<4, FULL, SYMM, FULL> {
 
-    TTK_INLINE
+    TTK_FUNCTION
     static constexpr int compute(int D, int i, int j, int k, int l) noexcept {
         const int p = pair_index(D, i, j);
         const int q = pair_index(D, k, l);
