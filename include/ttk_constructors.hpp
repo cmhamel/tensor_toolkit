@@ -62,6 +62,14 @@ Tensor<T, M, D, O, Args...> ones() {
     return data;
 }
 
+// template<typename T, int M, int D, int O, bool... Args>
+// TTK_FUNCTION
+// Tensor<T, M, D, O, Args...> tensor(std::initializer_list<T> data_) {
+//     Tensor<T, M, D, O, Args...> A;
+//     assert(data_.size() == Length);
+//     std::copy(data_.begin(), data_.end(), A.data);
+// }
+
 template<typename T, int M, int D, int O, bool... Args>
 TTK_FUNCTION
 Tensor<T, M, D, O, Args...> zero() {

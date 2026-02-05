@@ -70,4 +70,27 @@ namespace ttk {
 
 #endif
 
+// compile time error checking macros
+#define TTK_OBJECTIVITY_ERROR_MSG(FUNC, ...) \
+    static_assert(\
+        ttk::__always_false<__VA_ARGS__>,\
+        "\n\n\n======================= OBJECTIVITY ERROR =======================\n\n\n"\
+        "File    : " __FILE__ "\n"\
+        "Function: " FUNC "\n\n"\
+        "You attempted to perform an operation on two "\
+        "tensors in\ndifferent spaces.\n\n" \
+        "An example of this is a dot product "\
+        "between\nspatial and material tensors.\n\n\n"\
+        "Check immediately above this error message for\n"\
+        "the troublesome types and stack trace.\n"\
+        "\n\n\n=================================================================\n\n\n"\
+    )
+
+#define TTK_OBJECTIVITY_GUARD(FUNC, FUNC_STR) \
+    template<typename A, typename B> \
+    TTK_FUNCTION \
+    auto FUNC(const A&, const B&) { \
+        TTK_OBJECTIVITY_ERROR_MSG(FUNC_STR, A, B); \
+    }
+
 } // end namespace ttk

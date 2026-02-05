@@ -8,29 +8,25 @@
 namespace ttk {
 
 // cross
-// template<typename T, int M>
-// TTK_FUNCTION
-// MaterialVector<T, M, 3> cross(
-//     const MaterialVector<T, M, 3>& a,
-//     const MaterialVector<T, M, 3>& b
-// ) requires SameFrame<MaterialVector<T, M, 3>, MaterialVector<T, M, 3>> {
-//     return cross(a.getDataConst(), b.getDataConst());
-// }
+TTK_OBJECTIVITY_GUARD(cross, "cross")
 
-// template<typename T, int M>
-// TTK_FUNCTION
-// SpatialVector<T, M, 3> cross(
-//     const SpatialVector<T, M, 3>& a,
-//     const SpatialVector<T, M, 3>& b
-// ) requires SameFrame<SpatialVector<T, M, 3>, SpatialVector<T, M, 3>> {
-//     return cross(a.getDataConst(), b.getDataConst());
-// }
+template<typename T, int M>
+TTK_FUNCTION
+MaterialVector<T, M, 3> cross(
+    const MaterialVector<T, M, 3>& a,
+    const MaterialVector<T, M, 3>& b
+) requires SameFrame<MaterialVector<T, M, 3>, MaterialVector<T, M, 3>> {
+    return cross(a.getDataConst(), b.getDataConst());
+}
 
-// template<typename A, typename B>
-// TTK_FUNCTION
-// auto cross(const A&, const B&) {
-//     TTK_OBJECTIVITY_ERROR("cross", A, B);
-// }
+template<typename T, int M>
+TTK_FUNCTION
+SpatialVector<T, M, 3> cross(
+    const SpatialVector<T, M, 3>& a,
+    const SpatialVector<T, M, 3>& b
+) requires SameFrame<SpatialVector<T, M, 3>, SpatialVector<T, M, 3>> {
+    return cross(a.getDataConst(), b.getDataConst());
+}
 
 template<typename T, int M>
 TTK_FUNCTION
@@ -47,29 +43,25 @@ Vector<T, M, 3> cross(
 
 // TODO
 // dot
-// template<typename T, int M, int D>
-// TTK_FUNCTION
-// T dot(
-//     const MaterialVector<T, M, D>& a,
-//     const MaterialVector<T, M, D>& b
-// ) requires SameFrame<MaterialVector<T, M, 3>, MaterialVector<T, M, 3>> {
-//     return dot(a.getDataConst(), b.getDataConst());
-// }
+TTK_OBJECTIVITY_GUARD(dot, "dot")
 
-// template<typename T, int M, int D>
-// TTK_FUNCTION
-// T dot(
-//     const SpatialVector<T, M, D>& a,
-//     const SpatialVector<T, M, D>& b
-// ) requires SameFrame<SpatialVector<T, M, 3>, SpatialVector<T, M, 3>> {
-//     return dot(a.getDataConst(), b.getDataConst());
-// }
+template<typename T, int M, int D>
+TTK_FUNCTION
+T dot(
+    const MaterialVector<T, M, D>& a,
+    const MaterialVector<T, M, D>& b
+) requires SameFrame<MaterialVector<T, M, 3>, MaterialVector<T, M, 3>> {
+    return dot(a.getDataConst(), b.getDataConst());
+}
 
-// template<typename A, typename B>
-// TTK_FUNCTION
-// auto dot(const A&, const B&) {
-//     TTK_OBJECTIVITY_ERROR("dot", A, B);
-// }
+template<typename T, int M, int D>
+TTK_FUNCTION
+T dot(
+    const SpatialVector<T, M, D>& a,
+    const SpatialVector<T, M, D>& b
+) requires SameFrame<SpatialVector<T, M, 3>, SpatialVector<T, M, 3>> {
+    return dot(a.getDataConst(), b.getDataConst());
+}
 
 template<typename T, int M, int D>
 TTK_FUNCTION
@@ -130,7 +122,35 @@ Tensor<T, M, 3, 2, false> dot(
 
 // dcontract
 // otimes
+TTK_OBJECTIVITY_GUARD(otimes, "otimes")
+
+template<typename T, int M, int D>
+Tensor2<T, M, D> otimes(
+    const Vector<T, M, D>& a,
+    const Vector<T, M, D>& b
+) {
+    Tensor2<T, M, D> A;
+    for (int i = 0; i < D; ++i) {
+        for (int j = 0; j < D; ++j) {
+            A(i, j) = a(i) * b(j);
+        }
+    }
+    return A;
+}
+
 // otimesl
+TTK_OBJECTIVITY_GUARD(otimesl, "otimesl")
+
 // otimesu
+TTK_OBJECTIVITY_GUARD(otimesu, "otimesu")
+
+template<typename T, int M, int D, int O, bool... SymArgs>
+TTK_FUNCTION
+Tensor<T, M, D, O, SymArgs...> operator*(
+    const T& val,
+    const Tensor<T, M, D, O, SymArgs...>& A
+) {
+    return A * val;
+}
 
 } // end namespace ttk

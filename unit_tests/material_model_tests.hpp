@@ -101,8 +101,7 @@ public:
         double J = ttk::det(F);
         double J_minus_13 = ttk::cbrt(1.0 / J);
         double J_minus_23 = J_minus_13 * J_minus_13;
-        SymmetricTensor2 B = ttk::dott(F);
-        double I1_bar = J_minus_23 * ttk::trace(B);
+        double I1_bar = ttk::first_invariant(J_minus_13 * F);
         psi = 0.5 * K * (0.5 * (J * J - 1.0) - ttk::log(J)) +
               0.5 * G * (I1_bar - 3.0);
     }

@@ -8,25 +8,20 @@
 namespace ttk {
 
 template<typename T, int M, int D, int O, bool... Args>
-struct Tensor {
+class Tensor {
 public:
     // raw template arg helps
-    static constexpr int Dimension = D;
-    static constexpr int MetricType = M;
-    static constexpr int Order = O;
+    static constexpr int Dimension                 = D;
+    static constexpr int Length                    = TensorLength<D, O, Args...>::value;
+    static constexpr int MetricType                = M;
+    static constexpr int Order                     = O;
     static constexpr bool SymArgs[sizeof...(Args)] = { Args... };
     using ValueType = T;
 
     // derived template args
-    static constexpr int Length = TensorLength<D, O, Args...>::value;
 
-    TTK_FUNCTION
-    // TTK_DEFAULTED_FUNCTION
-    Tensor() noexcept = default;
-    // TTK_FUNCTION
-    // Tensor() noexcept {
-    //     fill(T{});
-    // }
+    TTK_DEFAULTED_FUNCTION
+    constexpr Tensor() = default;
 
     TTK_FUNCTION
     Tensor(T value) noexcept {
@@ -34,14 +29,6 @@ public:
     }
 
     // TODO fix assert
-    // TTK_FUNCTION
-    // Tensor(std::initializer_list<T> data_) noexcept {
-    //     assert(data_.size() == Length);
-    //     int i = 0;
-    //     for (T v : data_) {
-    //         data[i++] = v;
-    //     }
-    // }
     TTK_FUNCTION
     constexpr Tensor(std::initializer_list<T> data_) noexcept {
         assert(data_.size() == Length);
@@ -53,21 +40,22 @@ public:
         std::fill(std::begin(data), std::end(data), value);
     }
 
-    TTK_FUNCTION
-    // constexpr T* getData() {
-    T* getData() const {
-        // return data;
-        return data;
-    }
+    // TTK_FUNCTION
+    // // constexpr T* getData() {
+    // T* getData() {
+    //     // return data;
+    //     return data;
+    // }
+
+    // TTK_FUNCTION
+    // const T* getData() const {
+    //     // return data;
+    //     return data;
+    // }
 
     TTK_FUNCTION
     const T* getDataConst() const {
         return data;
-    }
-
-    TTK_FUNCTION
-    static constexpr int getLength() {
-        return Length;
     }
 
     template<typename... Ids>
@@ -81,9 +69,28 @@ public:
     }
 
     // operator overloading
+    // template<typename... Ids>
+    // TTK_FUNCTION
+    // T& operator()(Ids... ids) const {
+    //     static_assert(
+    //         sizeof...(Ids) == O,
+    //         "Number of indices must equal tensor order"
+    //     );
+    //     return const_cast<T&>(data[linear_index(ids...)]);
+    // }
+    // template<typename... Ids>
+    // TTK_FUNCTION
+    // T operator()(Ids... ids) const {
+    //     static_assert(
+    //         sizeof...(Ids) == O,
+    //         "Number of indices must equal tensor order"
+    //     );
+    //     return data[linear_index(ids...)];
+    // }
+
     template<typename... Ids>
     TTK_FUNCTION
-    T operator()(Ids... ids) const {
+    T& operator()(Ids... ids) {
         static_assert(
             sizeof...(Ids) == O,
             "Number of indices must equal tensor order"
@@ -93,7 +100,7 @@ public:
 
     template<typename... Ids>
     TTK_FUNCTION
-    T& operator()(Ids... ids) {
+    const T& operator()(Ids... ids) const {
         static_assert(
             sizeof...(Ids) == O,
             "Number of indices must equal tensor order"
@@ -128,7 +135,25 @@ public:
         return C;
     }
 
-private:
+    TTK_FUNCTION
+    Tensor operator/(const T& val) const {
+        Tensor C;
+        for (int i = 0; i < Length; ++i) {
+            C.data[i] = this->data[i] / val;
+        }
+        return C;
+    }
+
+    TTK_FUNCTION
+    bool operator==(const Tensor& A) const {
+        bool equal = false;
+        for (int i = 0; i < Length; ++i) {
+            equal = equal && (this->data[i] == A.data[i]);
+        }
+        return equal;
+    }
+
+// private:
     T data[Length];
 };
 
