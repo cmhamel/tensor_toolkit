@@ -5,6 +5,7 @@ project(tensor_toolkit CXX)
 option(TENSOR_TOOLKIT_ENABLE_CUDA "Enable CUDA support" OFF)
 option(TENSOR_TOOLKIT_ENABLE_ENZYME "Enable Enzyme support" OFF)
 option(TENSOR_TOOLKIT_ENABLE_HIP  "Enable HIP/ROCm support" OFF)
+option(TENSOR_TOOLKIT_ENABLE_KOKKOS "Enable Kokkos support" OFF)
 option(TENSOR_TOOLKIT_ENABLE_KOKKOS_TESTS "Enable Kokkos testing support" OFF)
 option(TENSOR_TOOLKIT_ENABLE_TESTS "Build unit tests" ON)
 
@@ -80,7 +81,7 @@ install(
 
 # Install headers
 install(
-    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/
+    DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/include/ttk
     DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 

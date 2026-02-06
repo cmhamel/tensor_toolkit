@@ -4,7 +4,7 @@
 #include <enzyme/enzyme>
 #include <gtest/gtest.h>
 #include "simple_motions.hpp"
-#include <tensor_toolkit.hpp>
+#include <ttk/tensor_toolkit.hpp>
 
 namespace ttk_material_model_tests {
 
@@ -17,11 +17,11 @@ using Tensor4 = ttk::Tensor4<double, ttk::CARTESIAN, 3>;
 template<typename T>
 class SimpleShear {
 public:
-    TTK_INLINE
+    TTK_DEFAULTED_FUNCTION
     constexpr SimpleShear() = default;
     ~SimpleShear() = default;
 
-    TTK_INLINE
+    TTK_FUNCTION
     Tensor2 deformationGradient(double shear) const {
         Tensor2 F({
             1, shear, 0,
@@ -31,7 +31,7 @@ public:
         return F;
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
     Tensor2 displacementGradient(double shear) const {
         Tensor2 I(ttk::identity<Tensor2>());
         return deformationGradient(shear) - I;
@@ -41,11 +41,11 @@ public:
 template<typename T>
 class UniaxialStrain {
 public:
-    TTK_INLINE
+    TTK_DEFAULTED_FUNCTION
     constexpr UniaxialStrain() = default;
     ~UniaxialStrain() = default;
 
-    TTK_INLINE
+    TTK_FUNCTION
     Tensor2 deformationGradient(double stretch) const {
         Tensor2 F({
             stretch, 0, 0,
@@ -55,7 +55,7 @@ public:
         return F;
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
     Tensor2 displacementGradient(double stretch) const {
         Tensor2 I(ttk::identity<Tensor2>());
         return deformationGradient(stretch) - I;
@@ -64,17 +64,17 @@ public:
 
 class Material {
 public:
-    TTK_INLINE
+    TTK_DEFAULTED_FUNCTION
     Material() = default;
 
-    TTK_INLINE
+    TTK_FUNCTION
     constexpr Material(int numProps_, int numStateVars_)
         : numProps(numProps_),
           numStateVars(numStateVars_) {}
 
     ~Material() = default;
 
-    TTK_INLINE
+    TTK_FUNCTION
     virtual void energy(double& psi, Tensor2& gradU) const = 0;
 private:
     int numProps;
@@ -83,16 +83,16 @@ private:
 
 class NeoHookean : public Material {
 public:
-    TTK_INLINE
+    TTK_DEFAULTED_FUNCTION
     NeoHookean() = default;
 
-    TTK_INLINE
+    TTK_FUNCTION
     constexpr NeoHookean(std::vector<double>& props_)
         : Material(props_.size(), 0),
           props(props_.data()) {
     }
 
-    TTK_INLINE
+    TTK_FUNCTION
     void energy(double& psi, Tensor2& gradU) const final {
         Tensor2 I(ttk::identity<Tensor2>());
         Tensor2 F = gradU + I;
@@ -101,8 +101,7 @@ public:
         double J = ttk::det(F);
         double J_minus_13 = ttk::cbrt(1.0 / J);
         double J_minus_23 = J_minus_13 * J_minus_13;
-        SymmetricTensor2 B = ttk::dott(F);
-        double I1_bar = J_minus_23 * ttk::trace(B);
+        double I1_bar = ttk::first_invariant(J_minus_13 * F);
         psi = 0.5 * K * (0.5 * (J * J - 1.0) - ttk::log(J)) +
               0.5 * G * (I1_bar - 3.0);
     }

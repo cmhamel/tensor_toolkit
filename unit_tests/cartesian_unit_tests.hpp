@@ -1,6 +1,6 @@
 #pragma once
 #include <gtest/gtest.h>
-#include <tensor_toolkit.hpp>
+#include <ttk/tensor_toolkit.hpp>
 
 namespace ttk_cartesian_tests {
 
@@ -17,36 +17,36 @@ using Vector = ttk::Vector<double, ttk::CARTESIAN, D>;
 
 TEST(TTKUnitTests, TestLength2D) {
     Vector<double, 2> vec;
-    EXPECT_EQ(vec.getLength(), 2);
+    EXPECT_EQ(vec.Length, 2);
 
     Tensor2<double, 2> tens2;
-    EXPECT_EQ(tens2.getLength(), 4);
+    EXPECT_EQ(tens2.Length, 4);
 
     SymmetricTensor2<double, 2> tens2s;
-    EXPECT_EQ(tens2s.getLength(), 3);
+    EXPECT_EQ(tens2s.Length, 3);
 
     Tensor3<double, 2> tens3;
-    EXPECT_EQ(tens3.getLength(), 8);
+    EXPECT_EQ(tens3.Length, 8);
 
     Tensor4<double, 2> tens4;
-    EXPECT_EQ(tens4.getLength(), 16);
+    EXPECT_EQ(tens4.Length, 16);
 }
 
 TEST(TTKUnitTests, TestLength3D) {
     Vector<double, 3> vec;
-    EXPECT_EQ(vec.getLength(), 3);
+    EXPECT_EQ(vec.Length, 3);
 
     Tensor2<double, 3> tens2;
-    EXPECT_EQ(tens2.getLength(), 9);
+    EXPECT_EQ(tens2.Length, 9);
 
     SymmetricTensor2<double, 3> tens2s;
-    EXPECT_EQ(tens2s.getLength(), 6);
+    EXPECT_EQ(tens2s.Length, 6);
 
     Tensor3<double, 3> tens3;
-    EXPECT_EQ(tens3.getLength(), 27);
+    EXPECT_EQ(tens3.Length, 27);
 
     Tensor4<double, 3> tens4;
-    EXPECT_EQ(tens4.getLength(), 81);
+    EXPECT_EQ(tens4.Length, 81);
 }
 
 TEST(TTKUnitTests, TestIndex3D) {
@@ -138,7 +138,7 @@ TEST(TTKUnitTests, TestTensor3Input) {
         10, 11, 12, 13, 14, 15, 16, 17, 18,
         19, 20, 21, 22, 23, 24, 25, 26, 27
     });
-    std::cout << "A length" << A.getLength() << std::endl;
+    std::cout << "A length" << A.Length << std::endl;
     std::cout << A << std::endl;
 }
 
@@ -154,7 +154,7 @@ TEST(TTKUnitTests, TestTensor4Input) {
         64, 65, 66, 67, 68, 69, 70, 71, 72,
         73, 74, 75, 76, 77, 78, 79, 80, 81
     });
-    std::cout << "A length" << A.getLength() << std::endl;
+    std::cout << "A length" << A.Length << std::endl;
     std::cout << A << std::endl;
 }
 

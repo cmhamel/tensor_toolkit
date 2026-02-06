@@ -1,7 +1,7 @@
 #pragma once
 #include <cmath>
 #include <gtest/gtest.h>
-#include <tensor_toolkit.hpp>
+#include <ttk/tensor_toolkit.hpp>
 
 namespace ttk_simple_function_tests {
 

@@ -1,5 +1,5 @@
 #pragma once
-#include <core/ttk_tensor.hpp>
+#include <ttk/core/tensor.hpp>
 
 namespace ttk {
 
