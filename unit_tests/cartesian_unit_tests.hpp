@@ -1,6 +1,6 @@
 #pragma once
 #include <gtest/gtest.h>
-#include <tensor_toolkit.hpp>
+#include <ttk/tensor_toolkit.hpp>
 
 namespace ttk_cartesian_tests {
 

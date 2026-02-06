@@ -1,33 +1,13 @@
 #pragma once
-#include <core/ttk_globals.hpp>
-#include <core/ttk_macros.hpp>
-#include <core/ttk_tensor.hpp>
-#include <ttk_aliases.hpp>
-#include <ttk_continuum_tensor.hpp>
+#include <ttk/aliases.hpp>
+#include <ttk/continuum_mechanics/continuum_tensor.hpp>
+#include <ttk/core/globals.hpp>
+#include <ttk/core/macros.hpp>
+#include <ttk/core/tensor.hpp>
 
 namespace ttk {
 
-// cross
-TTK_OBJECTIVITY_GUARD(cross, "cross")
-
-template<typename T, int M>
-TTK_FUNCTION
-MaterialVector<T, M, 3> cross(
-    const MaterialVector<T, M, 3>& a,
-    const MaterialVector<T, M, 3>& b
-) requires SameFrame<MaterialVector<T, M, 3>, MaterialVector<T, M, 3>> {
-    return cross(a.getDataConst(), b.getDataConst());
-}
-
-template<typename T, int M>
-TTK_FUNCTION
-SpatialVector<T, M, 3> cross(
-    const SpatialVector<T, M, 3>& a,
-    const SpatialVector<T, M, 3>& b
-) requires SameFrame<SpatialVector<T, M, 3>, SpatialVector<T, M, 3>> {
-    return cross(a.getDataConst(), b.getDataConst());
-}
-
+// cross product
 template<typename T, int M>
 TTK_FUNCTION
 Vector<T, M, 3> cross(
@@ -42,44 +22,29 @@ Vector<T, M, 3> cross(
 }
 
 // TODO
-// dot
-TTK_OBJECTIVITY_GUARD(dot, "dot")
-
-template<typename T, int M, int D>
-TTK_FUNCTION
-T dot(
-    const MaterialVector<T, M, D>& a,
-    const MaterialVector<T, M, D>& b
-) requires SameFrame<MaterialVector<T, M, 3>, MaterialVector<T, M, 3>> {
-    return dot(a.getDataConst(), b.getDataConst());
-}
-
-template<typename T, int M, int D>
-TTK_FUNCTION
-T dot(
-    const SpatialVector<T, M, D>& a,
-    const SpatialVector<T, M, D>& b
-) requires SameFrame<SpatialVector<T, M, 3>, SpatialVector<T, M, 3>> {
-    return dot(a.getDataConst(), b.getDataConst());
-}
-
+// dot product
 template<typename T, int M, int D>
 TTK_FUNCTION
 T dot(const Vector<T, M, D>& a, const Vector<T, M, D>& b) {
-    if constexpr (D == 0) {
-        return a(0) * b(0);
-    } else if constexpr (D == 1) {
-        return a(0) * b(0) + a(1) * b(1);
-    } else if constexpr (D == 2) {
-        return a(0) * b(0) + a(1) * b(1) + a(2) * b(2);
-    } else if constexpr (D == 3) {
-        return a(0) * b(0) + a(1) * b(1) + a(2) * b(2) + a(3) * b(3);
-    } else {
-        static_assert(
-            __always_false<T>(),
-            "Dimension greater than 4 not supported"
-        );
+    // if constexpr (D == 0) {
+    //     return a(0) * b(0);
+    // } else if constexpr (D == 1) {
+    //     return a(0) * b(0) + a(1) * b(1);
+    // } else if constexpr (D == 2) {
+    //     return a(0) * b(0) + a(1) * b(1) + a(2) * b(2);
+    // } else if constexpr (D == 3) {
+    //     return a(0) * b(0) + a(1) * b(1) + a(2) * b(2) + a(3) * b(3);
+    // } else {
+    //     static_assert(
+    //         __always_false<T>(),
+    //         "Dimension greater than 4 not supported"
+    //     );
+    // }
+    int ret = T(0.0);
+    for (int i = 0; i < D; ++i) {
+        ret += a(i) + b(i);
     }
+    return ret;
 }
 
 // TODO eventually specialize to symmetric vs. non-symmetric
@@ -122,7 +87,7 @@ Tensor<T, M, 3, 2, false> dot(
 
 // dcontract
 // otimes
-TTK_OBJECTIVITY_GUARD(otimes, "otimes")
+// TTK_OBJECTIVITY_GUARD(otimes, "otimes")
 
 template<typename T, int M, int D>
 Tensor2<T, M, D> otimes(
@@ -139,10 +104,8 @@ Tensor2<T, M, D> otimes(
 }
 
 // otimesl
-TTK_OBJECTIVITY_GUARD(otimesl, "otimesl")
 
 // otimesu
-TTK_OBJECTIVITY_GUARD(otimesu, "otimesu")
 
 template<typename T, int M, int D, int O, bool... SymArgs>
 TTK_FUNCTION

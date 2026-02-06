@@ -1,10 +1,10 @@
 #pragma once
 #include <cmath>
-#include <core/ttk_globals.hpp>
-#include <core/ttk_macros.hpp>
-#include <core/ttk_tensor.hpp>
-#include <ttk_aliases.hpp>
-#include <ttk_continuum_tensor.hpp>
+#include <ttk/aliases.hpp>
+#include <ttk/continuum_mechanics/continuum_tensor.hpp>
+#include <ttk/core/globals.hpp>
+#include <ttk/core/macros.hpp>
+#include <ttk/core/tensor.hpp>
 
 namespace ttk {
 
@@ -47,13 +47,6 @@ T cbrt(T base) {
             "pow is only supported for floating point types"
         );
     }
-}
-
-// det
-template<typename T, int M, int D, bool Sym>
-TTK_FUNCTION
-T det(const ContinuumTensor2<T, M, D, Sym>& A) {
-    return det(A.getDataConst());
 }
 
 template<typename T, int M, int D>
@@ -158,22 +151,10 @@ T det(const SymmetricTensor2<T, M, D>& A) {
 }
 
 // dev
-template<typename T, int M, int D, bool... Sym>
-TTK_FUNCTION
-ContinuumTensor<T, M, D, D, Sym...> dev(const ContinuumTensor<T, M, D, D, Sym...>& A) {
-    return dev(A.getDataConst());
-}
-
 template<typename T, int M, int D, bool Sym>
 TTK_FUNCTION
 Tensor<T, M, D, 2, Sym> dev(const Tensor<T, M, D, 2, Sym>& A) {
     return A - (1. / 3.) * trace(A) * identity<Tensor<T, M, D, 2, Sym>>();
-}
-
-template<typename T, int M, int D>
-TTK_FUNCTION
-SpatialTensor2<T, M, D> dott(const TwoPointTensor2<T, M, D>& F) {
-    return dott(F.getDataConst());
 }
 
 template<typename T, int M, int D>
@@ -354,12 +335,6 @@ T min(T val) {
 
 template<typename T, int M, int D>
 TTK_FUNCTION
-T norm(const ContinuumVector<T, M, D>& A) {
-    return norm(A.getDataConst());
-}
-
-template<typename T, int M, int D>
-TTK_FUNCTION
 T norm(const Vector<T, M, D>& A) {
     T normA = 0.0;
     for (int i = 0; i < D; ++i) {
@@ -440,16 +415,69 @@ T sign(T val) {
     }
 }
 
+
+// TODO need more methods for tranpose
+
+// eigen
+// eigvals
+// eigvecs
+// norm
+
+
+
+
+// dotdot
+// fromvoigt
+// majorsymmetric
+// majortranspose
+// minorsymmetric
+// minortranspose
+// rotate
+// rotationtensor
+// skew
+// symmetric
+// template<typename T, int M, int D>
+
+template<typename T, int M, int D>
+Tensor2<T, M, D> symmetric(const Tensor2<T, M, D>& A) {
+    SymmetricTensor2<T, M, D> Asym(0.5 * (A + transpose(A)));
+    return Asym;
+}
+
+template<typename T, int M, int D>
+SymmetricTensor2<T, M, D> symmetric(const SymmetricTensor2<T, M, D>& A) {
+    return A;
+}
+
+// tdot
+
+
+template<typename T, int M>
+TTK_FUNCTION
+SymmetricTensor2<T, M, 3> tdot(const Tensor2<T, M, 3>& F) {
+    SymmetricTensor2<T, M, 3> C;
+
+    const T F00 = F(0, 0), F01 = F(0, 1), F02 = F(0, 2);
+    const T F10 = F(1, 0), F11 = F(1, 1), F12 = F(1, 2);
+    const T F20 = F(2, 0), F21 = F(2, 1), F22 = F(2, 2);
+
+    // Diagonal
+    C(0, 0) = F00 * F00 + F10 * F10 + F20 * F20;
+    C(1, 1) = F01 * F01 + F11 * F11 + F21 * F21;
+    C(2, 2) = F02 * F02 + F12 * F12 + F22 * F22;
+
+    // Upper triangle
+    C(0, 1) = F00 * F01 + F10 * F11 + F20 * F21;
+    C(0, 2) = F00 * F02 + F10 * F12 + F20 * F22;
+    C(1, 2) = F01 * F02 + F11 * F12 + F21 * F22;
+
+    return C;
+}
+
 // trace
 // TODO specialize for faster methods maybe?
 // check what the compiler is doing with different
 // levels of optimization
-template<typename T, int M, int D, bool Sym>
-TTK_FUNCTION
-T trace(const ContinuumTensor2<T, M, D, Sym>& A) {
-    return trace(A.getDataConst());
-}
-
 template<typename T, int M, int D, bool Sym>
 TTK_FUNCTION
 T trace(const Tensor<T, M, D, 2, Sym>& A) {
@@ -492,67 +520,7 @@ SymmetricTensor2<T, M, D> transpose(const SymmetricTensor2<T, M, D>& A) {
     return A;
 }
 
-// TODO need more methods for tranpose
 
-// eigen
-// eigvals
-// eigvecs
-// norm
-
-
-
-
-// dotdot
-// fromvoigt
-// majorsymmetric
-// majortranspose
-// minorsymmetric
-// minortranspose
-// rotate
-// rotationtensor
-// skew
-// symmetric
-// template<typename T, int M, int D>
-
-template<typename T, int M, int D>
-Tensor2<T, M, D> symmetric(const Tensor2<T, M, D>& A) {
-    SymmetricTensor2<T, M, D> Asym(0.5 * (A + transpose(A)));
-    return Asym;
-}
-
-template<typename T, int M, int D>
-SymmetricTensor2<T, M, D> symmetric(const SymmetricTensor2<T, M, D>& A) {
-    return A;
-}
-
-// tdot
-template<typename T, int M, int D>
-TTK_FUNCTION
-MaterialTensor2<T, M, D> tdot(const MaterialTensor2<T, M, D>& F) {
-    return tdot(F.getDataConst());
-}
-
-template<typename T, int M>
-TTK_FUNCTION
-SymmetricTensor2<T, M, 3> tdot(const Tensor2<T, M, 3>& F) {
-    SymmetricTensor2<T, M, 3> C;
-
-    const T F00 = F(0, 0), F01 = F(0, 1), F02 = F(0, 2);
-    const T F10 = F(1, 0), F11 = F(1, 1), F12 = F(1, 2);
-    const T F20 = F(2, 0), F21 = F(2, 1), F22 = F(2, 2);
-
-    // Diagonal
-    C(0, 0) = F00 * F00 + F10 * F10 + F20 * F20;
-    C(1, 1) = F01 * F01 + F11 * F11 + F21 * F21;
-    C(2, 2) = F02 * F02 + F12 * F12 + F22 * F22;
-
-    // Upper triangle
-    C(0, 1) = F00 * F01 + F10 * F11 + F20 * F21;
-    C(0, 2) = F00 * F02 + F10 * F12 + F20 * F22;
-    C(1, 2) = F01 * F02 + F11 * F12 + F21 * F22;
-
-    return C;
-}
 // tovoigt
 // tovoigt!
 // vol

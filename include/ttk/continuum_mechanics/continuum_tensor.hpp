@@ -1,10 +1,11 @@
 #pragma once
-#include <core/ttk_globals.hpp>
-#include <core/ttk_indexing.hpp>
-#include <core/ttk_lengths.hpp>
-#include <core/ttk_macros.hpp>
-#include <core/ttk_tensor.hpp>
+
 #include <string_view>
+#include <ttk/core/globals.hpp>
+#include <ttk/core/indexing.hpp>
+#include <ttk/core/lengths.hpp>
+#include <ttk/core/macros.hpp>
+#include <ttk/core/tensor.hpp>
 
 namespace ttk {
 
@@ -16,6 +17,7 @@ public:
     static constexpr int Length = TensorLength<D, O, Args...>::value;
     static constexpr int MetricType = M;
     static constexpr int Order = O;
+    static constexpr size_t NumSymArgs             = sizeof...(Args);
     static constexpr bool SymArgs[sizeof...(Args)] = { Args... };
     using TensorType = Tensor<T, M, D, O, Args...>;
     using ValueType = T;
@@ -24,16 +26,16 @@ public:
     // using Base::operator=;
 
     TTK_DEFAULTED_FUNCTION
-    ContinuumTensor() = default;
+    constexpr ContinuumTensor() = default;
 
     TTK_FUNCTION
-    ContinuumTensor(const std::initializer_list<T>& data_) {
+    constexpr ContinuumTensor(const std::initializer_list<T>& data_) {
         assert(data_.size() == Length);
         std::copy(data_.begin(), data_.end(), data.data);
     }
 
     TTK_FUNCTION
-    ContinuumTensor(const Tensor<T, M, D, O, Args...>& data_)
+    constexpr ContinuumTensor(const Tensor<T, M, D, O, Args...>& data_)
         : data(data_) {}
 
     TTK_FUNCTION
@@ -144,6 +146,10 @@ struct SpatialTensor2 : public ContinuumTensor2<T, M, D, true> {};
 
 template<typename T, int M, int D>
 struct TwoPointTensor2 : public ContinuumTensor2<T, M, D, false> {};
+
+// e.g. tranpose of deformation gradient
+template<typename T, int M, int D>
+struct TwoPointTensor2T : public ContinuumTensor2<T, M, D, false> {};
 
 template<typename T, int M, int D, bool... Syms>
 using ContinuumTensor3 = ContinuumTensor<T, M, D, 3, Syms...>;

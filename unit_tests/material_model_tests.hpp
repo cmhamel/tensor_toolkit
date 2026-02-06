@@ -4,7 +4,7 @@
 #include <enzyme/enzyme>
 #include <gtest/gtest.h>
 #include "simple_motions.hpp"
-#include <tensor_toolkit.hpp>
+#include <ttk/tensor_toolkit.hpp>
 
 namespace ttk_material_model_tests {
 

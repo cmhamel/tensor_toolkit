@@ -1,7 +1,7 @@
 #pragma once
-#include <core/ttk_enums.hpp>
-#include <core/ttk_macros.hpp>
-#include <ttk_aliases.hpp>
+#include <ttk/aliases.hpp>
+#include <ttk/core/enums.hpp>
+#include <ttk/core/macros.hpp>
 
 namespace ttk {
 
