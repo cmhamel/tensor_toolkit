@@ -5,7 +5,7 @@
 
 namespace ttk {
 
-template<typename T, int M>
+template<Scalar T, int M>
 TTK_FUNCTION
 T first_invariant(const Tensor2<T, M, 3>& F) {
     const T& F00 = F(0, 0), F01 = F(0, 1), F02 = F(0, 2);
@@ -17,7 +17,7 @@ T first_invariant(const Tensor2<T, M, 3>& F) {
     return ret;
 }
 
-template<typename T, int M>
+template<Scalar T, int M>
 TTK_FUNCTION
 T first_invariant(const SymmetricTensor2<T, M, 3>& C) {
     const T& C00 = C(0, 0), C01 = C(0, 1), C02 = C(0, 2);

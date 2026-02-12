@@ -1,9 +1,8 @@
 #pragma once
 #include <cassert> // for assert (TODO replace with better error handling)
 #include <iomanip>
-#include "indexing.hpp"
-#include "lengths.hpp"
 #include "macros.hpp"
+#include "traits.hpp"
 
 namespace ttk {
 
@@ -14,7 +13,7 @@ constexpr _EmptyTensor EmptyTensor() {
     return {};
 }
 
-template<typename T, int M, int D, int O, bool... Args>
+template<Scalar T, int M, int D, int O, int... Args>
 class Tensor {
 public:
     // raw template arg helps
@@ -23,7 +22,7 @@ public:
     static constexpr int MetricType                = M;
     static constexpr int Order                     = O;
     static constexpr size_t NumSymArgs             = sizeof...(Args);
-    static constexpr bool SymArgs[sizeof...(Args)] = { Args... };
+    static constexpr int SymArgs[sizeof...(Args)] = { Args... };
     using ValueType = T;
 
     // derived template args
@@ -71,29 +70,15 @@ public:
             sizeof...(Ids) == O,
             "Number of indices must equal tensor order"
         );
-        return LinearIndex<O, Args...>::compute(D, ids...);
+        return _indexing::LinearIndex<O, Args...>::compute(D, ids...);
+    }
+
+    TTK_FUNCTION
+    constexpr void setData(const int& i, const T& val) {
+        data[i] = val;
     }
 
     // operator overloading
-    // template<typename... Ids>
-    // TTK_FUNCTION
-    // T& operator()(Ids... ids) const {
-    //     static_assert(
-    //         sizeof...(Ids) == O,
-    //         "Number of indices must equal tensor order"
-    //     );
-    //     return const_cast<T&>(data[linear_index(ids...)]);
-    // }
-    // template<typename... Ids>
-    // TTK_FUNCTION
-    // T operator()(Ids... ids) const {
-    //     static_assert(
-    //         sizeof...(Ids) == O,
-    //         "Number of indices must equal tensor order"
-    //     );
-    //     return data[linear_index(ids...)];
-    // }
-
     template<typename... Ids>
     TTK_FUNCTION
     T& operator()(Ids... ids) {

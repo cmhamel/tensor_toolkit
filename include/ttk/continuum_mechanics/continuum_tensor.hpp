@@ -1,16 +1,13 @@
 #pragma once
 
 #include <string_view>
-#include <ttk/core/globals.hpp>
-#include <ttk/core/indexing.hpp>
-#include <ttk/core/lengths.hpp>
 #include <ttk/core/macros.hpp>
 #include <ttk/core/tensor.hpp>
 
 namespace ttk {
 
 // specialization for continuum tensors
-template<typename T, int M, int D, int O, bool... Args>
+template<Scalar T, int M, int D, int O, int... Args>
 struct ContinuumTensor {
 public:
     static constexpr int Dimension = D;
@@ -18,7 +15,7 @@ public:
     static constexpr int MetricType = M;
     static constexpr int Order = O;
     static constexpr size_t NumSymArgs             = sizeof...(Args);
-    static constexpr bool SymArgs[sizeof...(Args)] = { Args... };
+    static constexpr int SymArgs[sizeof...(Args)] = { Args... };
     using TensorType = Tensor<T, M, D, O, Args...>;
     using ValueType = T;
 
@@ -112,53 +109,53 @@ protected:
     Tensor<T, M, D, O, Args...> data;
 };
 
-template<typename T, int M, int D, int O, bool... Syms>
+template<Scalar T, int M, int D, int O, int... Syms>
 std::ostream& operator<<(std::ostream& os, const ContinuumTensor<T, M, D, O, Syms...>& A) {
     os << A.getDataConst();
     return os;
 }
 
 // specialization for continuum vectors
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 using ContinuumVector = ContinuumTensor<T, M, D, 1>;
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 struct MaterialVector : public ContinuumVector<T, M, D> {
     using ContinuumVector<T, M, D>::ContinuumVector;
     using ContinuumVector<T, M, D>::operator=;
 };
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 struct SpatialVector : public ContinuumVector<T, M, D> {
     using ContinuumVector<T, M, D>::ContinuumVector;
     using ContinuumVector<T, M, D>::operator=;
 };
 
 // specialization for continuum second ordertensors
-template<typename T, int M, int D, bool Sym>
+template<Scalar T, int M, int D, int Sym>
 using ContinuumTensor2 = ContinuumTensor<T, M, D, 2, Sym>;
 
-template<typename T, int M, int D>
-struct MaterialTensor2 : public ContinuumTensor2<T, M, D, true> {};
+template<Scalar T, int M, int D>
+struct MaterialTensor2 : public ContinuumTensor2<T, M, D, SYMM> {};
 
-template<typename T, int M, int D>
-struct SpatialTensor2 : public ContinuumTensor2<T, M, D, true> {};
+template<Scalar T, int M, int D>
+struct SpatialTensor2 : public ContinuumTensor2<T, M, D, SYMM> {};
 
-template<typename T, int M, int D>
-struct TwoPointTensor2 : public ContinuumTensor2<T, M, D, false> {};
+template<Scalar T, int M, int D>
+struct TwoPointTensor2 : public ContinuumTensor2<T, M, D, FULL> {};
 
 // e.g. tranpose of deformation gradient
-template<typename T, int M, int D>
-struct TwoPointTensor2T : public ContinuumTensor2<T, M, D, false> {};
+template<Scalar T, int M, int D>
+struct TwoPointTensor2T : public ContinuumTensor2<T, M, D, FULL> {};
 
-template<typename T, int M, int D, bool... Syms>
+template<Scalar T, int M, int D, int... Syms>
 using ContinuumTensor3 = ContinuumTensor<T, M, D, 3, Syms...>;
 
 // specialization for continuum second ordertensors
-template<typename T, int M, int D, bool... Syms>
+template<Scalar T, int M, int D, int... Syms>
 using ContinuumTensor4 = ContinuumTensor<T, M, D, 4, Syms...>;
 
-template<typename T, int M, int D>
-struct TwoPointTensor4 : public ContinuumTensor4<T, M, D, false, false, false> {};
+template<Scalar T, int M, int D>
+struct TwoPointTensor4 : public ContinuumTensor4<T, M, D, FULL, FULL, FULL> {};
 
 } // end namespace ttk

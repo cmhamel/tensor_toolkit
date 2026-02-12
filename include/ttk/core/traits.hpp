@@ -4,6 +4,17 @@
 
 namespace ttk {
 
+// helper to make things build correctly
+// with certain compiler flags
+template<typename...>
+TTK_FUNCTION
+constexpr bool __always_false = false;
+
+template<typename T>
+concept Scalar = std::is_arithmetic_v<T>;
+
+namespace _indexing {
+
 TTK_FUNCTION
 constexpr int pair_index(int D, int a, int b) noexcept {
     return a * D + b;   // no minor symmetry
@@ -16,7 +27,7 @@ constexpr int upper_triangular(int i, int j) noexcept {
         : (i * (i + 1)) / 2 + j;
 }
 
-template<int O, bool... Syms>
+template<int O, int... Syms>
 struct LinearIndex;
 
 template<>
@@ -51,37 +62,6 @@ struct LinearIndex<2, SYMM> {
         return i * D
              - (i * (i - 1)) / 2
              + (j - i);
-        // if (i == 0) {
-        //     if (j == 0) {
-        //         return _ST2_00;
-        //     } else if (j == 1) {
-        //         return _ST2_01;
-        //     } else if (j == 2) {
-        //         return _ST2_02;
-        //     } else {
-        //         assert(false);
-        //     }
-        // } else if (i == 1) {
-        //     if (j == 0) {
-        //         return _ST2_10;
-        //     } else if (j == 1) {
-        //         return _ST2_11;
-        //     } else if (j == 2) {
-        //         return _ST2_12;
-        //     } else {
-        //         assert(false);
-        //     }
-        // } else if (i == 2) {
-        //     if (j == 0) {
-        //         return _ST2_20;
-        //     } else if (j == 1) {
-        //         return _ST2_21;
-        //     } else if (j == 2) {
-        //         return _ST2_22;
-        //     } else {
-        //         assert(false);
-        //     }
-        // }
     }
 };
 
@@ -111,6 +91,67 @@ struct LinearIndex<4, FULL, SYMM, FULL> {
 
         return upper_triangular(p, q);
     }
+};
+
+} // end namespace ttk::_indexing
+
+namespace _lengths {
+
+template<int D, int O, int... Syms>
+struct _TensorLength;
+
+// 1st order
+template<int D>
+struct _TensorLength<D, 1> {
+    static constexpr int value = D;
+};
+
+// 2nd order
+template<int D>
+struct _TensorLength<D, 2, FULL> {
+    static constexpr int value = D * D;
+};
+
+template<int D>
+struct _TensorLength<D, 2, SYMM> {
+    static constexpr int value = D * (D + 1) / 2;
+};
+
+// 3rd order
+template<int D>
+struct _TensorLength<D, 3, FULL, FULL> {
+    static constexpr int value = D * D * D;
+};
+
+// 4th order
+template<int D>
+struct _TensorLength<D, 4, FULL, FULL, FULL> {
+    static constexpr int value = D * D * D * D;
+};
+
+template<int D>
+struct _TensorLength<D, 4, FULL, SYMM, FULL> {
+    static constexpr int value = D * D * (D + 1) * (D + 1) / 2 / 2;
+};
+
+} // end namespace ttk::_lengths
+
+template<int D, int O, int... Syms>
+struct TensorLength {
+    // TODO add more compile time checks that e.g.
+    // order/dimension or sensible/supported
+    // sanity check: number of symmetry flags must be order-1
+    static_assert(
+        sizeof...(Syms) == (O > 0 ? O - 1 : 0),
+        "Number of symmetry flags must be O-1"
+    );
+    // static constexpr int value =
+    //     (O == 0) ? 1 :               // scalar
+    //     (O == 1) ? D :               // vector
+    //     _TensorLength<D, Syms...>::value;
+    static constexpr int value = 
+        (O == 0) ? 1 :
+        _lengths::_TensorLength<D, O, Syms...>::value;
 };
 
 } // end namespace ttk

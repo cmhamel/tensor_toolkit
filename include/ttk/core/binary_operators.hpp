@@ -1,14 +1,13 @@
 #pragma once
+#include "enums.hpp"
+#include "macros.hpp"
+#include "tensor.hpp"
 #include <ttk/aliases.hpp>
-#include <ttk/continuum_mechanics/continuum_tensor.hpp>
-#include <ttk/core/globals.hpp>
-#include <ttk/core/macros.hpp>
-#include <ttk/core/tensor.hpp>
 
 namespace ttk {
 
 // cross product
-template<typename T, int M>
+template<Scalar T, int M>
 TTK_FUNCTION
 Vector<T, M, 3> cross(
     const Vector<T, M, 3>& a,
@@ -23,7 +22,7 @@ Vector<T, M, 3> cross(
 
 // TODO
 // dot product
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 TTK_FUNCTION
 T dot(const Vector<T, M, D>& a, const Vector<T, M, D>& b) {
     // if constexpr (D == 0) {
@@ -49,7 +48,7 @@ T dot(const Vector<T, M, D>& a, const Vector<T, M, D>& b) {
 
 // TODO eventually specialize to symmetric vs. non-symmetric
 // to trim a few ops
-template<typename T, int M, int D, bool Sym>
+template<Scalar T, int M, int D, int Sym>
 TTK_FUNCTION
 Vector<T, M, D> dot(const Tensor<T, M, D, 2, Sym> &A, const Vector<T, M, D> &B) {
     Vector<T, M, D> dotAB;
@@ -62,25 +61,94 @@ Vector<T, M, D> dot(const Tensor<T, M, D, 2, Sym> &A, const Vector<T, M, D> &B) 
     return dotAB;
 }
 
-template<typename T, int M>
+template<Scalar T, int M>
 TTK_FUNCTION
-Tensor<T, M, 3, 2, false> dot(
-    const Tensor<T, 3, 2, false>& A,
-    const Tensor<T, 3, 2, false>& B
+Tensor<T, M, 3, 2, FULL> dot(
+    const Tensor<T, M, 3, 2, FULL>& A,
+    const Tensor<T, M, 3, 2, FULL>& B
 ) {
-    Tensor<T, 3, 2, false> C;
+    Tensor<T, M, 3, 2, false> C;
 
-    C(0, 0) = A(0, 0) * B(0, 0) + A(0, 1) * B(1, 0) + A(0, 2) *B(2, 0);
-    C(0, 1) = A(0, 0) * B(0, 1) + A(0, 1) * B(1, 1) + A(0, 2) *B(2, 1);
-    C(0, 2) = A(0, 0) * B(0, 2) + A(0, 1) * B(1, 2) + A(0, 2) *B(2, 2);
+    C(0, 0) = A(0, 0) * B(0, 0) + A(0, 1) * B(1, 0) + A(0, 2) * B(2, 0);
+    C(0, 1) = A(0, 0) * B(0, 1) + A(0, 1) * B(1, 1) + A(0, 2) * B(2, 1);
+    C(0, 2) = A(0, 0) * B(0, 2) + A(0, 1) * B(1, 2) + A(0, 2) * B(2, 2);
 
-    C(1, 0) = A(1, 0) * B(0, 0) + A(1, 1) * B(1, 0) + A(1, 2) *B(2, 0);
-    C(1, 1) = A(1, 0) * B(0, 1) + A(1, 1) * B(1, 1) + A(1, 2) *B(2, 1);
-    C(1, 2) = A(1, 0) * B(0, 2) + A(1, 1) * B(1, 2) + A(1, 2) *B(2, 2);
+    C(1, 0) = A(1, 0) * B(0, 0) + A(1, 1) * B(1, 0) + A(1, 2) * B(2, 0);
+    C(1, 1) = A(1, 0) * B(0, 1) + A(1, 1) * B(1, 1) + A(1, 2) * B(2, 1);
+    C(1, 2) = A(1, 0) * B(0, 2) + A(1, 1) * B(1, 2) + A(1, 2) * B(2, 2);
 
-    C(2, 0) = A(2, 0) * B(0, 0) + A(2, 1) * B(1, 0) + A(2, 2) *B(2, 0);
-    C(2, 1) = A(2, 0) * B(0, 1) + A(2, 1) * B(1, 1) + A(2, 2) *B(2, 1);
-    C(2, 2) = A(2, 0) * B(0, 2) + A(2, 1) * B(1, 2) + A(2, 2) *B(2, 2);
+    C(2, 0) = A(2, 0) * B(0, 0) + A(2, 1) * B(1, 0) + A(2, 2) * B(2, 0);
+    C(2, 1) = A(2, 0) * B(0, 1) + A(2, 1) * B(1, 1) + A(2, 2) * B(2, 1);
+    C(2, 2) = A(2, 0) * B(0, 2) + A(2, 1) * B(1, 2) + A(2, 2) * B(2, 2);
+
+    return C;
+}
+
+template<Scalar T, int M>
+TTK_FUNCTION
+Tensor<T, M, 3, 2, FULL> dot(
+    const Tensor<T, M, 3, 2, SYMM>& A,
+    const Tensor<T, M, 3, 2, FULL>& B
+) {
+    Tensor<T, M, 3, 2, false> C;
+
+    C(0, 0) = A(0, 0) * B(0, 0) + A(0, 1) * B(1, 0) + A(0, 2) * B(2, 0);
+    C(0, 1) = A(0, 0) * B(0, 1) + A(0, 1) * B(1, 1) + A(0, 2) * B(2, 1);
+    C(0, 2) = A(0, 0) * B(0, 2) + A(0, 1) * B(1, 2) + A(0, 2) * B(2, 2);
+
+    C(1, 0) = A(1, 0) * B(0, 0) + A(1, 1) * B(1, 0) + A(1, 2) * B(2, 0);
+    C(1, 1) = A(1, 0) * B(0, 1) + A(1, 1) * B(1, 1) + A(1, 2) * B(2, 1);
+    C(1, 2) = A(1, 0) * B(0, 2) + A(1, 1) * B(1, 2) + A(1, 2) * B(2, 2);
+
+    C(2, 0) = A(2, 0) * B(0, 0) + A(2, 1) * B(1, 0) + A(2, 2) * B(2, 0);
+    C(2, 1) = A(2, 0) * B(0, 1) + A(2, 1) * B(1, 1) + A(2, 2) * B(2, 1);
+    C(2, 2) = A(2, 0) * B(0, 2) + A(2, 1) * B(1, 2) + A(2, 2) * B(2, 2);
+
+    return C;
+}
+
+template<Scalar T, int M>
+TTK_FUNCTION
+Tensor<T, M, 3, 2, FULL> dot(
+    const Tensor<T, M, 3, 2, FULL>& A,
+    const Tensor<T, M, 3, 2, SYMM>& B
+) {
+    Tensor<T, M, 3, 2, false> C;
+
+    C(0, 0) = A(0, 0) * B(0, 0) + A(0, 1) * B(1, 0) + A(0, 2) * B(2, 0);
+    C(0, 1) = A(0, 0) * B(0, 1) + A(0, 1) * B(1, 1) + A(0, 2) * B(2, 1);
+    C(0, 2) = A(0, 0) * B(0, 2) + A(0, 1) * B(1, 2) + A(0, 2) * B(2, 2);
+
+    C(1, 0) = A(1, 0) * B(0, 0) + A(1, 1) * B(1, 0) + A(1, 2) * B(2, 0);
+    C(1, 1) = A(1, 0) * B(0, 1) + A(1, 1) * B(1, 1) + A(1, 2) * B(2, 1);
+    C(1, 2) = A(1, 0) * B(0, 2) + A(1, 1) * B(1, 2) + A(1, 2) * B(2, 2);
+
+    C(2, 0) = A(2, 0) * B(0, 0) + A(2, 1) * B(1, 0) + A(2, 2) * B(2, 0);
+    C(2, 1) = A(2, 0) * B(0, 1) + A(2, 1) * B(1, 1) + A(2, 2) * B(2, 1);
+    C(2, 2) = A(2, 0) * B(0, 2) + A(2, 1) * B(1, 2) + A(2, 2) * B(2, 2);
+
+    return C;
+}
+
+template<Scalar T, int M>
+TTK_FUNCTION
+Tensor<T, M, 3, 2, FULL> dot(
+    const Tensor<T, M, 3, 2, SYMM>& A,
+    const Tensor<T, M, 3, 2, SYMM>& B
+) {
+    Tensor<T, M, 3, 2, FULL> C;
+
+    C(0, 0) = A(0, 0) * B(0, 0) + A(0, 1) * B(1, 0) + A(0, 2) * B(2, 0);
+    C(0, 1) = A(0, 0) * B(0, 1) + A(0, 1) * B(1, 1) + A(0, 2) * B(2, 1);
+    C(0, 2) = A(0, 0) * B(0, 2) + A(0, 1) * B(1, 2) + A(0, 2) * B(2, 2);
+
+    C(1, 0) = A(1, 0) * B(0, 0) + A(1, 1) * B(1, 0) + A(1, 2) * B(2, 0);
+    C(1, 1) = A(1, 0) * B(0, 1) + A(1, 1) * B(1, 1) + A(1, 2) * B(2, 1);
+    C(1, 2) = A(1, 0) * B(0, 2) + A(1, 1) * B(1, 2) + A(1, 2) * B(2, 2);
+
+    C(2, 0) = A(2, 0) * B(0, 0) + A(2, 1) * B(1, 0) + A(2, 2) * B(2, 0);
+    C(2, 1) = A(2, 0) * B(0, 1) + A(2, 1) * B(1, 1) + A(2, 2) * B(2, 1);
+    C(2, 2) = A(2, 0) * B(0, 2) + A(2, 1) * B(1, 2) + A(2, 2) * B(2, 2);
 
     return C;
 }
@@ -89,7 +157,7 @@ Tensor<T, M, 3, 2, false> dot(
 // otimes
 // TTK_OBJECTIVITY_GUARD(otimes, "otimes")
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 Tensor2<T, M, D> otimes(
     const Vector<T, M, D>& a,
     const Vector<T, M, D>& b
@@ -107,7 +175,7 @@ Tensor2<T, M, D> otimes(
 
 // otimesu
 
-template<typename T, int M, int D, int O, bool... SymArgs>
+template<Scalar T, int M, int D, int O, int... SymArgs>
 TTK_FUNCTION
 Tensor<T, M, D, O, SymArgs...> operator*(
     const T& val,

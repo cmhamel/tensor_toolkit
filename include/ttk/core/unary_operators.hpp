@@ -1,55 +1,38 @@
 #pragma once
 #include <cmath>
+#include "helpers.hpp"
+#include <limits>
+#include "macros.hpp"
+#include "tensor.hpp"
 #include <ttk/aliases.hpp>
-#include <ttk/continuum_mechanics/continuum_tensor.hpp>
-#include <ttk/core/globals.hpp>
-#include <ttk/core/macros.hpp>
-#include <ttk/core/tensor.hpp>
 
 namespace ttk {
 
-template<typename T>
+template<Scalar T>
 TTK_FUNCTION
 T abs(T val) {
-    if constexpr (std::is_floating_point_v<T>) {
-        #if defined(__CUDACC__) // device compilation
-            return ::abs(val); // CUDA/HIP device pow
-        #elif defined(__HIPCC__)
-            return ::abs(val);
-        #else
-            return std::abs(val); // host
-        #endif
-    } else {
-        // fallback for integers (convert to double)
-        // return pow(static_cast<double>(base), static_cast<double>(exp));
-        static_assert(
-            __always_false<T>,
-            "max is only supported for floating point types"
-        );
-    }
+    #if defined(__CUDACC__) // device compilation
+        return ::abs(val); // CUDA/HIP device pow
+    #elif defined(__HIPCC__)
+        return ::abs(val);
+    #else
+        return std::abs(val); // host
+    #endif
 }
 
-template<typename T>
+template<Scalar T>
 TTK_FUNCTION
 T cbrt(T base) {
-    if constexpr (std::is_floating_point_v<T>) {
-        #if defined(__CUDACC__) // device compilation
-            return ::cbrt(base); // CUDA/HIP device pow
-        #elif defined(__HIPCC__)
-            return ::cbrt(base);
-        #else
-            return std::cbrt(base); // host
-        #endif
-    } else {
-        // only supporting floats
-        static_assert(
-            __always_false<T>,
-            "pow is only supported for floating point types"
-        );
-    }
+    #if defined(__CUDACC__) // device compilation
+        return ::cbrt(base); // CUDA/HIP device pow
+    #elif defined(__HIPCC__)
+        return ::cbrt(base);
+    #else
+        return std::cbrt(base); // host
+    #endif
 }
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 TTK_FUNCTION
 T det(const Tensor2<T, M, D>& A) {
     if constexpr (D == 1) {
@@ -89,7 +72,7 @@ T det(const Tensor2<T, M, D>& A) {
     }
 }
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 TTK_FUNCTION
 T det(const SymmetricTensor2<T, M, D>& A) {
     if constexpr (D == 1) {
@@ -151,13 +134,13 @@ T det(const SymmetricTensor2<T, M, D>& A) {
 }
 
 // dev
-template<typename T, int M, int D, bool Sym>
+template<Scalar T, int M, int D, int Sym>
 TTK_FUNCTION
 Tensor<T, M, D, 2, Sym> dev(const Tensor<T, M, D, 2, Sym>& A) {
     return A - (1. / 3.) * trace(A) * identity<Tensor<T, M, D, 2, Sym>>();
 }
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 TTK_FUNCTION
 SymmetricTensor2<T, M, 3> dott(const Tensor2<T, M, D>& F) {
     SymmetricTensor2<T, M, 3> B;
@@ -166,7 +149,7 @@ SymmetricTensor2<T, M, 3> dott(const Tensor2<T, M, D>& F) {
 }
 
 // in-place version
-template<typename T, int M>
+template<Scalar T, int M>
 TTK_FUNCTION
 void dott(
     const Tensor2<T, M, 3>& F,
@@ -186,7 +169,29 @@ void dott(
     B.data[_ST2_12] = F10 * F20 + F11 * F21 + F12 * F22; // yz
 } 
 
-template<typename T, int M>
+template<Scalar T>
+TTK_FUNCTION
+T exp(T base) {
+    #if defined(__CUDACC__) // device compilation
+        return ::exp(base); // CUDA/HIP device pow
+    #elif defined(__HIPCC__)
+        return ::exp(base);
+    #else
+        return std::exp(base); // host
+    #endif
+}
+
+template<Scalar T, int M, int D>
+TTK_FUNCTION
+SymmetricTensor2<T, M, D> exp(const SymmetricTensor2<T, M, D>& A) {
+    auto [evals, evecs] = eigen(A);
+    for (int i = 0; i < D; ++i) {
+        evals(i) = exp(evals(i));
+    }
+    return from_eigen(evals, evecs);
+}
+
+template<Scalar T, int M>
 TTK_FUNCTION
 Tensor2<T, M, 3> inv(const Tensor2<T, M, 3>& A) {
     Tensor2<T, M, 3> Ainv;
@@ -233,7 +238,7 @@ Tensor2<T, M, 3> inv(const Tensor2<T, M, 3>& A) {
     return inv;
 }
 
-template<typename T, int M>
+template<Scalar T, int M>
 TTK_FUNCTION
 SymmetricTensor2<T, M, 3> inv(const SymmetricTensor2<T, M, 3>& A) {
     SymmetricTensor2<T, M, 3> Ainv;
@@ -274,68 +279,61 @@ SymmetricTensor2<T, M, 3> inv(const SymmetricTensor2<T, M, 3>& A) {
     return inv;
 }
 
-template<typename T>
+template<Scalar T>
 TTK_FUNCTION
 T log(T base) {
-    if constexpr (std::is_floating_point_v<T>) {
-        #if defined(__CUDACC__) // device compilation
-            return ::log(base); // CUDA/HIP device pow
-        #elif defined(__HIPCC__)
-            return ::log(base);
-        #else
-            return std::log(base); // host
-        #endif
-    } else {
-        // fallback for integers (convert to double)
-        // return pow(static_cast<double>(base), static_cast<double>(exp));
-        static_assert(
-            __always_false<T>,
-            "pow is only supported for floating point types"
-        );
-    }
+    #if defined(__CUDACC__) // device compilation
+        return ::log(base); // CUDA/HIP device pow
+    #elif defined(__HIPCC__)
+        return ::log(base);
+    #else
+        return std::log(base); // host
+    #endif
 }
 
-template<typename T>
+template<Scalar T, int M, int D>
 TTK_FUNCTION
-T max(T val) {
-    if constexpr (std::is_floating_point_v<T>) {
-        #if defined(__CUDACC__) // device compilation
-            return ::max(val); // CUDA/HIP device pow
-        #elif defined(__HIPCC__)
-            return ::max(val);
-        #else
-            return std::max(val); // host
-        #endif
-    } else {
-        static_assert(
-            __always_false<T>,
-            "max is only supported for floating point types"
-        );
+SymmetricTensor2<T, M, D> log(const SymmetricTensor2<T, M, D>& A) {
+    auto [evals, evecs] = eigen(A);
+    for (int i = 0; i < D; ++i) {
+        evals(i) = log(evals(i));
     }
+    return from_eigen(evals, evecs);
 }
 
-template<typename T>
+template<Scalar T>
 TTK_FUNCTION
-T min(T val) {
-    if constexpr (std::is_floating_point_v<T>) {
-        #if defined(__CUDACC__) // device compilation
-            return ::min(val); // CUDA/HIP device pow
-        #elif defined(__HIPCC__)
-            return ::min(val);
-        #else
-            return std::min(val); // host
-        #endif
-    } else {
-        static_assert(
-            __always_false<T>,
-            "max is only supported for floating point types"
-        );
-    }
+T max(T val1, T val2) {
+    #if defined(__CUDACC__) // device compilation
+        return ::max(val1, val2); // CUDA/HIP device pow
+    #elif defined(__HIPCC__)
+        return ::max(val, val2);
+    #else
+        return std::max(val1, val2); // host
+    #endif
 }
 
-template<typename T, int M, int D>
+template<Scalar T>
 TTK_FUNCTION
-T norm(const Vector<T, M, D>& A) {
+T min(T val1, T val2) {
+    #if defined(__CUDACC__) // device compilation
+        return ::min(val1, val2); // CUDA/HIP device pow
+    #elif defined(__HIPCC__)
+        return ::min(val1, val2);
+    #else
+        return std::min(val1, val2); // host
+    #endif
+}
+
+template<Scalar T, int M, int D, int O, int... Syms>
+TTK_FUNCTION
+T norm_2(const Tensor<T, M, D, O, Syms...>& A) {
+    return sqrt(norm_2_squared(A));
+}
+
+template<Scalar T, int M, int D>
+TTK_FUNCTION
+T norm_2_squared(const Vector<T, M, D>& A) {
     T normA = 0.0;
     for (int i = 0; i < D; ++i) {
         normA = normA + A(i) * A(i);
@@ -343,9 +341,9 @@ T norm(const Vector<T, M, D>& A) {
     return normA;
 }
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 TTK_FUNCTION
-T norm(const Tensor2<T, M, D>& A) {
+T norm_2_squared(const Tensor2<T, M, D>& A) {
     T normA = 0.0;
     for (int i = 0; i < D; ++i) {
         for (int j = 0; j < D; ++j) {
@@ -355,64 +353,82 @@ T norm(const Tensor2<T, M, D>& A) {
     return normA;
 }
 
+template<Scalar T, int M, int D, int O, int... Syms>
+TTK_FUNCTION
+T norm_inf(const Tensor<T, M, D, O, Syms...>& A) {
+    T norm(-std::numeric_limits<T>::infinity());
+    auto data = A.getDataConst();
+    for (int i = 0; i < A.Length; ++i) {
+        norm = max(norm, data[i]);
+    }
+    return norm;
+}
+
+// specialization for eigen vector reconstruction
+template<Scalar T, int M, int D>
+TTK_FUNCTION
+SymmetricTensor2<T, M, D> otimes(const Vector<T, M, D>& a) {
+    SymmetricTensor2<T, M, D> A;
+    A(0, 0) = a(0) * a(0);
+    A(1, 1) = a(1) * a(1);
+    A(2, 2) = a(2) * a(2);
+    A(0, 1) = a(0) * a(1);
+    A(1, 2) = a(1) * a(2);
+    A(2, 0) = a(2) * a(0);
+    return A;
+}
+
 // TODO
-// inv
 // sqrt
 
-template<typename T>
+template<Scalar T>
 TTK_FUNCTION
 T pow(T base, T exp) {
-    if constexpr (std::is_floating_point_v<T>) {
-        #if defined(__CUDACC__) // device compilation
-            return ::pow(base, exp); // CUDA/HIP device pow
-        #elif defined(__HIPCC__)
-            return ::pow(base, exp);
-        #else
-            return std::pow(base, exp); // host
-        #endif
-    } else {
-        // only supporting floats
-        static_assert(
-            __always_false<T>,
-            "pow is only supported for floating point types"
-        );
-    }
+    #if defined(__CUDACC__) // device compilation
+        return ::pow(base, exp); // CUDA/HIP device pow
+    #elif defined(__HIPCC__)
+        return ::pow(base, exp);
+    #else
+        return std::pow(base, exp); // host
+    #endif
 }
 
-template<typename T>
+template<Scalar T, int M, int D>
+TTK_FUNCTION
+SymmetricTensor2<T, M, D> pow(const SymmetricTensor2<T, M, D>& A, const T& m) {
+    auto [evals, evecs] = eigen(A);
+    for (int i = 0; i < D; ++i) {
+        evals(i) = pow(evals(i), m);
+    }
+    return from_eigen(evals, evecs);
+}
+
+template<Scalar T>
 TTK_FUNCTION
 T sqrt(T base) {
-    if constexpr (std::is_floating_point_v<T>) {
-        #if defined(__CUDACC__) // device compilation
-            return ::sqrt(base); // CUDA/HIP device pow
-        #elif defined(__HIPCC__)
-            return ::sqrt(base);
-        #else
-            return std::sqrt(base); // host
-        #endif
-    } else {
-        // fallback for integers (convert to double)
-        // return pow(static_cast<double>(base), static_cast<double>(exp));
-        static_assert(
-            __always_false<T>,
-            "pow is only supported for floating point types"
-        );
-    }
+    #if defined(__CUDACC__) // device compilation
+        return ::sqrt(base); // CUDA/HIP device pow
+    #elif defined(__HIPCC__)
+        return ::sqrt(base);
+    #else
+        return std::sqrt(base); // host
+    #endif
 }
 
-template<typename T>
+template<Scalar T, int M, int D>
+TTK_FUNCTION
+SymmetricTensor2<T, M, D> sqrt(const SymmetricTensor2<T, M, D>& A) {
+    auto [evals, evecs] = eigen(A);
+    for (int i = 0; i < D; ++i) {
+        evals(i) = sqrt(evals(i));
+    }
+    return from_eigen(evals, evecs);
+}
+
+template<Scalar T>
 TTK_FUNCTION
 T sign(T val) {
-    if constexpr (std::is_floating_point_v<T>) {
-        return __ifelse(val > T(0.0), T(1.0), T(-1.0));
-    } else {
-        // fallback for integers (convert to double)
-        // return pow(static_cast<double>(base), static_cast<double>(exp));
-        static_assert(
-            __always_false<T>,
-            "max is only supported for floating point types"
-        );
-    }
+    return __ifelse(val > T(0.0), T(1.0), T(-1.0));
 }
 
 
@@ -421,9 +437,6 @@ T sign(T val) {
 // eigen
 // eigvals
 // eigvecs
-// norm
-
-
 
 
 // dotdot
@@ -436,23 +449,36 @@ T sign(T val) {
 // rotationtensor
 // skew
 // symmetric
-// template<typename T, int M, int D>
+// template<Scalar T, int M, int D>
 
-template<typename T, int M, int D>
-Tensor2<T, M, D> symmetric(const Tensor2<T, M, D>& A) {
-    SymmetricTensor2<T, M, D> Asym(0.5 * (A + transpose(A)));
+template<Scalar T, int M, int D>
+Tensor2<T, M, D> skew(const Tensor2<T, M, D>& A) {
+    return 0.5 * (A - transpose(A));
+}
+
+template<Scalar T, int M, int D>
+Tensor2<T, M, D> skew(const SymmetricTensor2<T, M, D>& A) {
+    return zero<Tensor2<T, M, D>>();
+}
+
+template<Scalar T, int M, int D>
+SymmetricTensor2<T, M, D> symmetric(const Tensor2<T, M, D>& A) {
+    SymmetricTensor2<T, M, D> Asym;
+    Asym(0, 0) = A(0, 0);
+    Asym(1, 1) = A(1, 1);
+    Asym(2, 2) = A(2, 2);
+    Asym(0, 1) = 0.5 * (A(0, 1) + A(1, 0));
+    Asym(1, 2) = 0.5 * (A(1, 2) + A(2, 1));
+    Asym(2, 0) = 0.5 * (A(2, 0) + A(0, 2));
     return Asym;
 }
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 SymmetricTensor2<T, M, D> symmetric(const SymmetricTensor2<T, M, D>& A) {
     return A;
 }
 
-// tdot
-
-
-template<typename T, int M>
+template<Scalar T, int M>
 TTK_FUNCTION
 SymmetricTensor2<T, M, 3> tdot(const Tensor2<T, M, 3>& F) {
     SymmetricTensor2<T, M, 3> C;
@@ -478,7 +504,7 @@ SymmetricTensor2<T, M, 3> tdot(const Tensor2<T, M, 3>& F) {
 // TODO specialize for faster methods maybe?
 // check what the compiler is doing with different
 // levels of optimization
-template<typename T, int M, int D, bool Sym>
+template<Scalar T, int M, int D, int Sym>
 TTK_FUNCTION
 T trace(const Tensor<T, M, D, 2, Sym>& A) {
     // T trA = 0.0;
@@ -502,7 +528,7 @@ T trace(const Tensor<T, M, D, 2, Sym>& A) {
     }
 }
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 TTK_FUNCTION
 Tensor2<T, M, D> transpose(const Tensor2<T, M, D>& A) {
     Tensor2<T, M, D> At;
@@ -514,23 +540,15 @@ Tensor2<T, M, D> transpose(const Tensor2<T, M, D>& A) {
     return At;
 }
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 TTK_FUNCTION
 SymmetricTensor2<T, M, D> transpose(const SymmetricTensor2<T, M, D>& A) {
     return A;
 }
 
-
 // tovoigt
 // tovoigt!
-// vol
-template<typename T, int M, int D, bool Sym>
-TTK_FUNCTION
-T vol(const ContinuumTensor<T, M, D, 2, Sym>&A) {
-    return vol(A.getDataConst());
-}
-
-template<typename T, int M, int D, bool Sym>
+template<Scalar T, int M, int D, int Sym>
 TTK_FUNCTION
 T vol(const Tensor<T, M, D, 2, Sym>& A) {
     T trA = trace(A);

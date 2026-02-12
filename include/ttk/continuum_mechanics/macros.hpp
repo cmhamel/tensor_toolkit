@@ -1,5 +1,5 @@
 #pragma once
-#include <ttk/continuum_mechanics/globals.hpp>
+#include <ttk/continuum_mechanics/traits.hpp>
 #include <ttk/core/macros.hpp>
 
 namespace ttk {

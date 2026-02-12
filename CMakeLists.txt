@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5.0)
+cmake_minimum_required(VERSION 3.16)
 project(tensor_toolkit CXX)
 
 # ---------- Options ----------
@@ -13,15 +13,6 @@ option(TENSOR_TOOLKIT_ENABLE_TESTS "Build unit tests" ON)
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    message(STATUS "GCC detected: adding -fpermissive flag")
-    # fails on compiling identity method without this
-    add_compile_options(-fpermissive)
-    
-    # Option 2: per target
-    # target_compile_options(tensor_toolkit PRIVATE -fpermissive)
-endif()
-
 # ---------- Library ----------
 add_library(tensor_toolkit INTERFACE)
 target_include_directories(tensor_toolkit
@@ -29,26 +20,23 @@ target_include_directories(tensor_toolkit
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-file(GLOB TTK_SOURCES "src/*.cpp")
+target_compile_options(tensor_toolkit INTERFACE
+    -Wall
+    -Wunused-variable
+)
+target_compile_options(tensor_toolkit INTERFACE
+    $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-fstack-usage>
+    $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-Wframe-larger-than=512>
+    $<$<AND:$<CONFIG:Debug>,$<CXX_COMPILER_ID:Clang>>:-fno-omit-frame-pointer>
+)
+target_compile_options(tensor_toolkit INTERFACE
+    $<$<CXX_COMPILER_ID:GNU>:-fpermissive>
+)
 
 # ---------------- Tests ----------------
 if(TENSOR_TOOLKIT_ENABLE_TESTS)
     enable_testing()
-
-    # just so we can pass on CI with windows
-    if(WIN32)
-        # Fetch GoogleTest if not found
-        include(FetchContent)
-        FetchContent_Declare(
-            googletest
-            URL https://github.com/google/googletest/archive/refs/tags/v1.17.0.zip
-        )
-        # Prevent overriding the parent project's compiler/linker settings
-        set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-        FetchContent_MakeAvailable(googletest)
-    endif()
-
-    find_package(GTest)
+    find_package(GTest REQUIRED)
     add_executable(ttk_unit_tests
         unit_tests/unit_tests_main.cpp
     )

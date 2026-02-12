@@ -1,30 +1,31 @@
 #pragma once
 #include <ttk/continuum_mechanics/continuum_tensor.hpp>
+#include <ttk/core/traits.hpp>
 #include <type_traits>
 
 namespace ttk {
 
-template<typename T>
+template<Scalar T>
 struct _TensorType;
 
 // we don't need any vector traits luckily
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 struct _TensorType<MaterialTensor2<T, M, D>> {
     static constexpr int value = 0;
 };
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 struct _TensorType<TwoPointTensor2<T, M, D>> {
     static constexpr int value = 1;
 };
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 struct _TensorType<TwoPointTensor2T<T, M, D>> {
     static constexpr int value = 2;
 };
 
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 struct _TensorType<SpatialTensor2<T, M, D>> {
     static constexpr int value = 3;
 };
