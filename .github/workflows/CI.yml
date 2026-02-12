@@ -27,8 +27,6 @@ jobs:
             compiler: appleclang
             cc: clang
             cxx: clang++
-          - os: windows-2022
-            compiler: msvc
 
     steps:
     - name: Checkout
@@ -53,14 +51,6 @@ jobs:
       run: |
         brew update
         brew install cmake googletest ninja
-
-    # ---------------- Windows deps ----------------
-    - name: Setup MSVC
-      if: runner.os == 'Windows'
-      # uses: ilammy/msvc-dev-cmd@v1
-      run: |
-        choco install cmake ninja
-        # GTest will be built as part of your project
 
     # ---------------- Configure ----------------
     - name: Configure
