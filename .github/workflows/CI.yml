@@ -41,6 +41,12 @@ jobs:
             cc: gcc-13
             cxx: g++-13
 
+          - os: ubuntu-22.04
+            compiler: gcc
+            version: 14
+            cc: gcc-14
+            cxx: g++-14
+
           # ---------------- Clang ----------------
           - os: ubuntu-22.04
             compiler: clang
@@ -73,11 +79,11 @@ jobs:
             cxx: clang++-18
 
           # ---------------- Intel oneAPI ----------------
-          - os: ubuntu-22.04
-            compiler: intel
-            version: oneapi
-            cc: icx
-            cxx: icpx
+          # - os: ubuntu-22.04
+          #   compiler: intel
+          #   version: oneapi
+          #   cc: icx
+          #   cxx: icpx
 
           # ---------------- macOS ----------------
           - os: macos-15
@@ -107,11 +113,11 @@ jobs:
           clang-14 clang-15 clang-16 clang-17 clang-18
 
     # ---------------- Intel oneAPI ----------------
-    - name: Install Intel oneAPI
-      if: matrix.compiler == 'intel'
-      uses: intel/oneapi-toolkit@v1
-      with:
-        components: compiler
+    # - name: Install Intel oneAPI
+    #   if: matrix.compiler == 'intel'
+    #   uses: intel/oneapi-toolkit@v1
+    #   with:
+    #     components: compiler
 
     # ---------------- macOS deps ----------------
     - name: Install macOS dependencies
