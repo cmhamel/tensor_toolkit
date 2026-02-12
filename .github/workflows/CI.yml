@@ -8,23 +8,63 @@ on:
 
 jobs:
   build:
-    name: ${{ matrix.os }} / ${{ matrix.compiler }}
+    name: ${{ matrix.os }} / ${{ matrix.compiler }}-${{ matrix.version }}
     runs-on: ${{ matrix.os }}
 
     strategy:
       fail-fast: false
       matrix:
         include:
+
+          # ---------------- GCC ----------------
           - os: ubuntu-22.04
             compiler: gcc
+            version: 10
+            cc: gcc-10
+            cxx: g++-10
+
+          - os: ubuntu-22.04
+            compiler: gcc
+            version: 11
+            cc: gcc-11
+            cxx: g++-11
+
+          - os: ubuntu-22.04
+            compiler: gcc
+            version: 12
+            cc: gcc-12
+            cxx: g++-12
+
+          - os: ubuntu-22.04
+            compiler: gcc
+            version: 13
             cc: gcc
             cxx: g++
+
+          # ---------------- Clang ----------------
           - os: ubuntu-22.04
             compiler: clang
-            cc: clang
-            cxx: clang++
+            version: 14
+            cc: clang-14
+            cxx: clang++-14
+
+          - os: ubuntu-22.04
+            compiler: clang
+            version: 15
+            cc: clang-15
+            cxx: clang++-15
+
+          # ---------------- Intel oneAPI ----------------
+          # - os: ubuntu-22.04
+          #   compiler: intel
+          #   version: oneapi
+          #   cc: icx
+          #   cxx: icpx
+
+          # ---------------- macOS ----------------
           - os: macos-15
             compiler: appleclang
+            version: system
             cc: clang
             cxx: clang++
 
@@ -38,12 +78,21 @@ jobs:
       run: |
         sudo apt-get update
         sudo apt-get install -y \
-          clang \
           cmake \
-          gcc \
-          g++ \
+          ninja-build \
           libgtest-dev \
-          ninja-build
+          gcc-10 g++-10 \
+          gcc-11 g++-11 \
+          gcc-12 g++-12 \
+          gcc g++ \
+          clang-14 clang-15
+
+    # ---------------- Intel oneAPI ----------------
+    # - name: Install Intel oneAPI
+    #   if: matrix.compiler == 'intel'
+    #   uses: intel/oneapi-toolkit@v1
+    #   with:
+    #     components: compiler
 
     # ---------------- macOS deps ----------------
     - name: Install macOS dependencies
@@ -58,7 +107,10 @@ jobs:
         CC: ${{ matrix.cc }}
         CXX: ${{ matrix.cxx }}
       run: |
-        cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DTENSOR_TOOLKIT_ENABLE_TESTS=ON
+        cmake -S . -B build \
+          -DCMAKE_BUILD_TYPE=Release \
+          -DTENSOR_TOOLKIT_ENABLE_TESTS=ON \
+          -G Ninja
 
     # ---------------- Build ----------------
     - name: Build
