@@ -126,7 +126,7 @@ Tensor2<T, M, 3> random_orthogonal(UniformDistribution<T>& dist) {
 
 template<typename TensorType>
 constexpr TensorType uniform() {
-    using T = TensorType::ValueType;
+    using T = typename TensorType::ValueType;
     UniformDistribution<T> dist;
     TensorType A;
     for (int i = 0; i < A.Length; ++i) {
