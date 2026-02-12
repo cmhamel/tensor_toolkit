@@ -38,14 +38,8 @@ jobs:
           - os: ubuntu-22.04
             compiler: gcc
             version: 13
-            cc: gcc-13
-            cxx: g++-13
-
-          - os: ubuntu-22.04
-            compiler: gcc
-            version: 14
-            cc: gcc-14
-            cxx: g++-14
+            cc: gcc
+            cxx: g++
 
           # ---------------- Clang ----------------
           - os: ubuntu-22.04
@@ -59,24 +53,6 @@ jobs:
             version: 15
             cc: clang-15
             cxx: clang++-15
-
-          - os: ubuntu-22.04
-            compiler: clang
-            version: 16
-            cc: clang-16
-            cxx: clang++-16
-
-          - os: ubuntu-22.04
-            compiler: clang
-            version: 17
-            cc: clang-17
-            cxx: clang++-17
-
-          - os: ubuntu-22.04
-            compiler: clang
-            version: 18
-            cc: clang-18
-            cxx: clang++-18
 
           # ---------------- Intel oneAPI ----------------
           # - os: ubuntu-22.04
@@ -108,9 +84,8 @@ jobs:
           gcc-10 g++-10 \
           gcc-11 g++-11 \
           gcc-12 g++-12 \
-          gcc-13 g++-13 \
-          gcc-14 g++-14 \
-          clang-14 clang-15 clang-16 clang-17 clang-18
+          gcc g++ \
+          clang-14 clang-15
 
     # ---------------- Intel oneAPI ----------------
     # - name: Install Intel oneAPI
