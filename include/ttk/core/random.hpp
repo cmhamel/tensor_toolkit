@@ -1,29 +1,53 @@
 #pragma once
 #include "macros.hpp"
 #include "traits.hpp"
-
-#ifdef TTK_ENABLE_KOKKOS
-#include <Kokkos_Core.hpp>
-
-using PoolType = Kokkos::Random_XorShift64_Pool<execution_space>;
-
-// TODO restrict to double
-// template<typename T>
-//TODO actually implement for kokkos side of house
-
-#else
-
+#if !defined(TENSOR_TOOLKIT_ENABLE_KOKKOS) || !TENSOR_TOOLKIT_ENABLE_KOKKOS
 #include <random>
+#endif
 
 namespace ttk {
-// struct PoolType {
-// public:
-//     static thread_local std::mt19937 rng{std::random_device{}()};
-// };
 
 // NOTE this guy is likely not GPU safe
 // but meant to mirror an eventual GPU implementation
 // using Kokkos
+
+#ifdef TENSOR_TOOLKIT_ENABLE_KOKKOS
+
+#include <Kokkos_Core.hpp>
+
+template<Scalar T>
+struct UniformDistribution {
+public:
+    using ExecSpace = Kokkos::DefaultExecutionSpace;
+    using PoolType = Kokkos::Random_XorShift64_Pool<ExecSpace>;
+
+    PoolType randPool;
+
+    TTK_DEFAULTED_FUNCTION
+    explicit UniformDistribution(uint64_t seed)
+        : randPool(seed) {}
+
+    TTK_FUNCTION
+    void free_state() {
+        randPool.free_state();
+    }
+
+    TTK_FUNCTION
+    auto get_state() {
+        return randPool.get_state();
+    }
+
+    TTK_FUNCTION
+    T rand() {
+        auto gen = get_state();
+        return gen.drand();
+    }
+};
+// TODO no kokkos cuda/hip
+#else
+
+// #include <random>
+
 template<Scalar T>
 struct UniformDistribution {
 public:
@@ -49,6 +73,7 @@ public:
     std::mt19937 rng;
 };
 
+#endif
+
 } // end namespace ttk
 
-#endif

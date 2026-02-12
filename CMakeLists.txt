@@ -6,7 +6,7 @@ option(TENSOR_TOOLKIT_ENABLE_CUDA "Enable CUDA support" OFF)
 option(TENSOR_TOOLKIT_ENABLE_ENZYME "Enable Enzyme support" OFF)
 option(TENSOR_TOOLKIT_ENABLE_HIP  "Enable HIP/ROCm support" OFF)
 option(TENSOR_TOOLKIT_ENABLE_KOKKOS "Enable Kokkos support" OFF)
-option(TENSOR_TOOLKIT_ENABLE_KOKKOS_TESTS "Enable Kokkos testing support" OFF)
+# option(TENSOR_TOOLKIT_ENABLE_KOKKOS_TESTS "Enable Kokkos testing support" OFF)
 option(TENSOR_TOOLKIT_ENABLE_TESTS "Build unit tests" ON)
 
 # ---------- C++ standard ----------
@@ -33,13 +33,24 @@ target_compile_options(tensor_toolkit INTERFACE
     $<$<CXX_COMPILER_ID:GNU>:-fpermissive>
 )
 
+# setup executable first to make the ext cmake files simple
+if(TENSOR_TOOLKIT_ENABLE_TESTS)
+    add_executable(ttk_unit_tests
+        unit_tests/unit_tests_main.cpp
+    )
+endif()
+
+# Extensions
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+include(CUDAExt)
+include(EnzymeExt)
+include(HIPExt)
+include(KokkosExt)
+
 # ---------------- Tests ----------------
 if(TENSOR_TOOLKIT_ENABLE_TESTS)
     enable_testing()
     find_package(GTest REQUIRED)
-    add_executable(ttk_unit_tests
-        unit_tests/unit_tests_main.cpp
-    )
     target_link_libraries(ttk_unit_tests
         PRIVATE
             tensor_toolkit
@@ -51,13 +62,6 @@ if(TENSOR_TOOLKIT_ENABLE_TESTS)
         COMMAND ttk_unit_tests
     )
 endif()
-
-# Extensions
-list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-include(CUDAExt)
-include(EnzymeExt)
-include(HIPExt)
-include(KokkosExt)
 
 # Installation
 include(GNUInstallDirs)
@@ -80,10 +84,6 @@ install(
     NAMESPACE tensor_toolkit::
     DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/tensor_toolkit
 )
-
-# @PACKAGE_INIT@
-
-# include("${CMAKE_CURRENT_LIST_DIR}/tensor_toolkitTargets.cmake")
 
 include(CMakePackageConfigHelpers)
 

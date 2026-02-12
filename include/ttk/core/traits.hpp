@@ -7,7 +7,7 @@ namespace ttk {
 // helper to make things build correctly
 // with certain compiler flags
 template<typename...>
-TTK_FUNCTION
+// TTK_FUNCTION
 constexpr bool __always_false = false;
 
 template<typename T>

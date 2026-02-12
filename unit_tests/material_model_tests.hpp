@@ -13,23 +13,17 @@ using SymmetricTensor2 = ttk::SymmetricTensor2<double, ttk::CARTESIAN, 3>;
 using Tensor2 = ttk::Tensor2<double, ttk::CARTESIAN, 3>;
 using Tensor4 = ttk::Tensor4<double, ttk::CARTESIAN, 3>;
 
+using TwoPointTensor2 = ttk::TwoPointTensor2<double, ttk::CARTESIAN, 3>;
+
 class Material {
 public:
     TTK_DEFAULTED_FUNCTION
     Material() = default;
 
-    // TTK_FUNCTION
-    // constexpr Material(int numProps_, int numStateVars_)
-    //     : numProps(numProps_),
-    //       numStateVars(numStateVars_) {}
-
     ~Material() = default;
 
     TTK_FUNCTION
-    virtual void energy(double& psi, Tensor2& gradU) const = 0;
-// private:
-//     int numProps;
-//     int numStateVars;
+    virtual void energy(double& psi, TwoPointTensor2& gradU) const = 0;
 };
 
 class NeoHookean : public Material {
@@ -44,9 +38,9 @@ public:
     }
 
     TTK_FUNCTION
-    void energy(double& psi, Tensor2& gradU) const final {
-        Tensor2 I(ttk::identity<Tensor2>());
-        Tensor2 F = gradU + I;
+    void energy(double& psi, TwoPointTensor2& gradU) const final {
+        TwoPointTensor2 I(ttk::identity<TwoPointTensor2>());
+        TwoPointTensor2 F = gradU + I;
         double K = props[0];
         double G = props[1];
         double J = ttk::det(F);
@@ -61,7 +55,7 @@ public:
 };
 
 template<typename Mat>
-void energy(Mat* mat, double& psi, Tensor2& gradU) {
+void energy(Mat* mat, double& psi, TwoPointTensor2& gradU) {
     mat->energy(psi, gradU);
 }
 
@@ -70,8 +64,8 @@ void pk1_stress(
     Mat* mat,
     double& psi,
     double& dpsi,
-    Tensor2& gradU,
-    Tensor2& P
+    TwoPointTensor2& gradU,
+    TwoPointTensor2& P
 ) {
     psi = 0.0;
     dpsi = 1.0;
@@ -86,9 +80,9 @@ void pk1_stress(
 template<typename Mat>
 void material_tangent(
     Mat* mat,
-    Tensor2& gradU,
+    TwoPointTensor2& gradU,
     double& psi,
-    Tensor2& P,
+    TwoPointTensor2& P,
     Tensor4& A
 ) {
     psi = 0.0;
@@ -96,8 +90,8 @@ void material_tangent(
     double dpsi = 0.0;
     double dbpsi = 0.0;
 
-    Tensor2 dgradU;
-    Tensor2 dP;
+    TwoPointTensor2 dgradU;
+    TwoPointTensor2 dP;
  
     for (int k = 0; k < 3; ++k) {
         for (int l = 0; l < 3; ++l) {
@@ -136,8 +130,8 @@ TEST(TTKMaterialUnitTests, NeoHookeanNoUniaxialStrainByRef) {
     // NeoHookean* dmat = new NeoHookean(dprops);
     double psi = 0.0;
     double dpsi = 1.0;
-    Tensor2 gradU = motion->displacementGradient(1.5);
-    Tensor2 P;
+    TwoPointTensor2 gradU = motion->displacementGradient(1.5);
+    TwoPointTensor2 P;
     P.fill(0.0);
     Tensor4 A;
     A.fill(0.0);

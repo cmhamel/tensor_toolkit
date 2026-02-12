@@ -23,5 +23,14 @@ TTK_OBJECTIVITY_GUARD(otimesl, "otimesl")
 // otimesu
 TTK_OBJECTIVITY_GUARD(otimesu, "otimesu")
 
+// basic operations
+// template<Scalar T, int M, int D> 
+// TTK_FUNCTION
+// TwoPointTensor2<T, M, D> operator+(
+//     const TwoPointTensor2<T, M, D>& A,
+//     const TwoPointTensor2<T, M, D>& B
+// ) {
+//     return TwoPointTensor2<T, M, D>(A.getDataConst() + B.getDataConst());
+// }
 
 } // end namespace ttk

@@ -29,4 +29,23 @@ T first_invariant(const SymmetricTensor2<T, M, 3>& C) {
     return ret;
 }
 
+// F = RU
+template<Scalar T, int M, int D>
+TTK_FUNCTION
+std::pair<TwoPointTensor2<T, M, D>, MaterialTensor2<T, M, D>>
+polar_decomposition(const TwoPointTensor2<T, M, D>& F) {
+    SymmetricTensor2<T, M, D> C = tdot(F);
+    auto [evals, evecs] = eigen(C.getDataConst());
+    for (int i = 0; i < D; ++i) {
+        evals(i) = sqrt(evals(i));
+    }
+    SymmetricTensor2<T, M, D> Utemp = from_eigen(evals, evecs);
+    Tensor2<T, M, D> Rtemp = dot(F.getDataConst(), inv(Utemp));
+    return std::pair<TwoPointTensor2<T, M, D>, MaterialTensor2<T, M, D>>(
+        TwoPointTensor2<T, M, D>(Rtemp), MaterialTensor2<T, M, D>(Utemp)
+    );
+}
+
+// TODO also implement the F = VR case
+
 } // end namespace ttk

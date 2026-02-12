@@ -196,6 +196,7 @@ TEST(TTKUnitTests, TestEigen3x3) {
     Tensor2<double, 3> F = uniform_with_bounds(1e-8, 10.0);
     SymmetricTensor2<double, 3> C = ttk::tdot(F);
     auto [evals, evecs] = ttk::eigen(C);
+    std::cout << "evals = " << evals << std::endl;
     Tensor2<double, 3> Diag;
     Diag.fill(0.0);
     for (int i = 0; i < 3; ++i) {

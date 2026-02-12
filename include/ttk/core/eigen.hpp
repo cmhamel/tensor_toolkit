@@ -5,6 +5,7 @@
 namespace ttk {
 
 template<Scalar T>
+TTK_FUNCTION
 T __cos_of_acos_divided_by_3(const T& x) {
     
     const T x2 = x * x;
@@ -24,6 +25,7 @@ T __cos_of_acos_divided_by_3(const T& x) {
 }
 
 template<Scalar T, int M>
+TTK_FUNCTION
 std::pair<Vector<T, M, 3>, Tensor2<T, M, 3>> eigen_non_nomalized(const SymmetricTensor2<T, M, 3>& A) {
 
     T cxx = A(0, 0), cyy = A(1, 1), czz = A(2, 2);
@@ -72,8 +74,8 @@ std::pair<Vector<T, M, 3>, Tensor2<T, M, 3>> eigen_non_nomalized(const Symmetric
     const bool k0gk2 = k2 <= k0;
     const bool k1gk2 = k2 <= k1;
     
-    const bool k0_largest = k0gk1 & k0gk2;
-    const bool k1_largest = k1gk2 & (!k0gk1);
+    const bool k0_largest = k0gk1 && k0gk2;
+    const bool k1_largest = k1gk2 && (!k0gk1);
     const bool k2_largest = !(k0_largest | k1_largest);
     const Vector<bool, 0, 3> k_largest({k0_largest, k1_largest, k2_largest});
 
@@ -97,11 +99,16 @@ std::pair<Vector<T, M, 3>, Tensor2<T, M, 3>> eigen_non_nomalized(const Symmetric
     const T row3_2 = __ifelse(k2_largest, crow1(2), crow2(2));
     Vector<T, M, 3> row3({row3_0, row3_1, row3_2});
 
-    const T ki_ki = 1.0 / ( 
-        __ifelse(k0_largest, k0, 0.0) +
-        __ifelse(k1_largest, k1, 0.0) +
-        __ifelse(k2_largest, k2, 0.0)
-    );
+    // const T ki_ki = 1.0 / ( 
+    //     __ifelse(k0_largest, k0, 0.0) +
+    //     __ifelse(k1_largest, k1, 0.0) +
+    //     __ifelse(k2_largest, k2, 0.0)
+    // );
+    const T ki_ki_denom = __ifelse(k0_largest, k0, 0.0) +
+                          __ifelse(k1_largest, k1, 0.0) +
+                          __ifelse(k2_largest, k2, 0.0);
+    const T ki_ki = 1.0 / max(ki_ki_denom, T(1e-12));
+
     
     const T ki_dpr1 = ki_ki * (
         k_row1(0) * row2(0) + k_row1(1) * row2(1) + k_row1(2) * row2(2)
@@ -193,7 +200,7 @@ std::pair<Vector<T, M, 3>, Tensor2<T, M, 3>> eigen_non_nomalized(const Symmetric
     
     
     Vector<T, M, 3> evals({eval0, eval1, eval2});
-    Tensor2<T, M, 3> evecs;
+    Tensor2<T, M, 3> evecs(0.0);
     for (int i = 0; i < 3; ++i) {
         // evecs(0, i) = evec0(i);
         // evecs(1, i) = evec1(i);
@@ -220,6 +227,7 @@ std::pair<Vector<T, M, 3>, Tensor2<T, M, 3>> eigen_non_nomalized(const Symmetric
 }
 
 template<Scalar T, int M>
+TTK_FUNCTION
 std::pair<Vector<T, M, 3>, Tensor2<T, M, 3>> eigen(const SymmetricTensor2<T, M, 3>& A) {
     T cmax = norm_inf(A);
     T cmaxInv = __ifelse(cmax > 0.0, 1.0 / cmax, 1.0);
@@ -250,6 +258,7 @@ std::pair<Vector<T, M, 3>, Tensor2<T, M, 3>> eigen(const SymmetricTensor2<T, M, 
 }
 
 template<Scalar T, int M>
+TTK_FUNCTION
 SymmetricTensor2<T, M, 3> from_eigen(const Vector<T, M, 3>& evals, const Tensor2<T, M, 3>& evecs) {
     SymmetricTensor2<T, M, 3> A;
     A.fill(0.0);
