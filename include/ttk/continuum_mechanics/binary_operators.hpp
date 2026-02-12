@@ -1,4 +1,5 @@
 #pragma once
+#include <ttk/core/binary_operators.hpp>
 #include <ttk/continuum_mechanics/continuum_tensor.hpp>
 #include <ttk/continuum_mechanics/macros.hpp>
 

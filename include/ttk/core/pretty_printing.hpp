@@ -1,10 +1,9 @@
 #pragma once
-#include <ttk/core/tensor.hpp>
+#include "tensor.hpp"
 
 namespace ttk {
 
-
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 std::ostream& operator<<(std::ostream& os, const Tensor<T, M, D, 1>& A) {
     os << "Vector(:) = [\n";
     for (int i = 0; i < D; ++i) {
@@ -16,7 +15,7 @@ std::ostream& operator<<(std::ostream& os, const Tensor<T, M, D, 1>& A) {
     return os;
 }
 
-template<typename T, int M, int D, bool Sym>
+template<Scalar T, int M, int D, int Sym>
 std::ostream& operator<<(std::ostream& os, const Tensor<T, M, D, 2, Sym>& A) {
     os << "Tensor(:, :) = [\n";
     for (int i = 0; i < D; ++i) {
@@ -30,7 +29,7 @@ std::ostream& operator<<(std::ostream& os, const Tensor<T, M, D, 2, Sym>& A) {
     return os;
 }
 
-template<typename T, int M, int D, bool... Syms>
+template<Scalar T, int M, int D, int... Syms>
 std::ostream& operator<<(std::ostream& os, const Tensor<T, M, D, 3, Syms...>& A) {
     for (int i = 0; i < D; ++i) {
         os << "Tensor(" << i << ", " << ":, :) = [\n";
@@ -46,7 +45,7 @@ std::ostream& operator<<(std::ostream& os, const Tensor<T, M, D, 3, Syms...>& A)
     return os;
 }
 
-template<typename T, int M, int D, bool... Syms>
+template<Scalar T, int M, int D, int... Syms>
 std::ostream& operator<<(std::ostream& os, const Tensor<T, M, D, 4, Syms...>& A) {
     for (int i = 0; i < D; ++i) {
         for (int j = 0; j < D; ++j) {

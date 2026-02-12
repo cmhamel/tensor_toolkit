@@ -31,8 +31,9 @@ enum Metrics {
 };
 
 enum Symmetry {
-    FULL = false,
-    SYMM = true
+    FULL = 0,
+    SYMM = 1,
+    SKEW = 2
 };
 
 } // end namespace ttk

@@ -3,7 +3,6 @@
 #if TENSOR_TOOLKIT_ENABLE_ENZYME
 #include <enzyme/enzyme>
 #include <gtest/gtest.h>
-#include "simple_motions.hpp"
 #include <ttk/tensor_toolkit.hpp>
 
 namespace ttk_material_model_tests {
@@ -14,71 +13,23 @@ using SymmetricTensor2 = ttk::SymmetricTensor2<double, ttk::CARTESIAN, 3>;
 using Tensor2 = ttk::Tensor2<double, ttk::CARTESIAN, 3>;
 using Tensor4 = ttk::Tensor4<double, ttk::CARTESIAN, 3>;
 
-template<typename T>
-class SimpleShear {
-public:
-    TTK_DEFAULTED_FUNCTION
-    constexpr SimpleShear() = default;
-    ~SimpleShear() = default;
-
-    TTK_FUNCTION
-    Tensor2 deformationGradient(double shear) const {
-        Tensor2 F({
-            1, shear, 0,
-            0, 1,     0,
-            0, 0,     1
-        });
-        return F;
-    }
-
-    TTK_FUNCTION
-    Tensor2 displacementGradient(double shear) const {
-        Tensor2 I(ttk::identity<Tensor2>());
-        return deformationGradient(shear) - I;
-    }
-};
-
-template<typename T>
-class UniaxialStrain {
-public:
-    TTK_DEFAULTED_FUNCTION
-    constexpr UniaxialStrain() = default;
-    ~UniaxialStrain() = default;
-
-    TTK_FUNCTION
-    Tensor2 deformationGradient(double stretch) const {
-        Tensor2 F({
-            stretch, 0, 0,
-            0,       1, 0,
-            0,       0, 1
-        });
-        return F;
-    }
-
-    TTK_FUNCTION
-    Tensor2 displacementGradient(double stretch) const {
-        Tensor2 I(ttk::identity<Tensor2>());
-        return deformationGradient(stretch) - I;
-    }
-};
-
 class Material {
 public:
     TTK_DEFAULTED_FUNCTION
     Material() = default;
 
-    TTK_FUNCTION
-    constexpr Material(int numProps_, int numStateVars_)
-        : numProps(numProps_),
-          numStateVars(numStateVars_) {}
+    // TTK_FUNCTION
+    // constexpr Material(int numProps_, int numStateVars_)
+    //     : numProps(numProps_),
+    //       numStateVars(numStateVars_) {}
 
     ~Material() = default;
 
     TTK_FUNCTION
     virtual void energy(double& psi, Tensor2& gradU) const = 0;
-private:
-    int numProps;
-    int numStateVars;
+// private:
+//     int numProps;
+//     int numStateVars;
 };
 
 class NeoHookean : public Material {
@@ -88,7 +39,7 @@ public:
 
     TTK_FUNCTION
     constexpr NeoHookean(std::vector<double>& props_)
-        : Material(props_.size(), 0),
+        : Material(),
           props(props_.data()) {
     }
 
@@ -101,7 +52,7 @@ public:
         double J = ttk::det(F);
         double J_minus_13 = ttk::cbrt(1.0 / J);
         double J_minus_23 = J_minus_13 * J_minus_13;
-        double I1_bar = ttk::first_invariant(J_minus_13 * F);
+        double I1_bar = J_minus_23 * ttk::first_invariant(F);
         psi = 0.5 * K * (0.5 * (J * J - 1.0) - ttk::log(J)) +
               0.5 * G * (I1_bar - 3.0);
     }
@@ -162,10 +113,10 @@ void material_tangent(
                 enzyme_dup, &gradU, &dgradU,
                 enzyme_dup, &P, &dP
             );
-            std::cout << "gradU   = " << gradU << std::endl;
-            std::cout << "dgradU  = " << dgradU << std::endl;
-            std::cout << "P       = " << P << std::endl;
-            std::cout << "dP      = " << dP << std::endl;
+            // std::cout << "gradU   = " << gradU << std::endl;
+            // std::cout << "dgradU  = " << dgradU << std::endl;
+            // std::cout << "P       = " << P << std::endl;
+            // std::cout << "dP      = " << dP << std::endl;
 
             for (int i = 0; i < 3; ++i) {
                 for (int j = 0; j < 3; ++j) {
@@ -177,28 +128,22 @@ void material_tangent(
 }
 
 TEST(TTKMaterialUnitTests, NeoHookeanNoUniaxialStrainByRef) {
-    UniaxialStrain<double>* motion = 
-        new UniaxialStrain<double>();
+    ttk::UniaxialStrain<double, ttk::CARTESIAN, 3>* motion = 
+        new ttk::UniaxialStrain<double, ttk::CARTESIAN, 3>();
     std::vector<double> props = {100.0, 1.0};
     std::vector<double> dprops = {0.0, 0.0};
     NeoHookean* mat = new NeoHookean(props);
-    NeoHookean* dmat = new NeoHookean(dprops);
+    // NeoHookean* dmat = new NeoHookean(dprops);
     double psi = 0.0;
     double dpsi = 1.0;
     Tensor2 gradU = motion->displacementGradient(1.5);
     Tensor2 P;
-    // P.fill(0.0);
+    P.fill(0.0);
     Tensor4 A;
-    // A.fill(0.0);
+    A.fill(0.0);
     gradU = motion->displacementGradient(1.5);
-    // energy(mat, psi, gradU);
-    // psi = energy(mat, gradU);
     energy(mat, psi, gradU);
-    std::cout << "Psi = " << psi << std::endl;
-    // pk1_stress(mat, psi, dpsi, gradU, P);
     pk1_stress(mat, psi, dpsi, gradU, P);
-    std::cout << "Psi = " << psi << std::endl;
-    std::cout << "P   = " << std::endl << P << std::endl;
     material_tangent(mat, gradU, psi, P, A);
     // std::cout << "Psi = " << psi << std::endl;
     // std::cout << "P   = " << std::endl << P << std::endl;
@@ -209,7 +154,6 @@ TEST(TTKMaterialUnitTests, NeoHookeanNoUniaxialStrainByRef) {
     // std::cout << "dmat.K = " << dmat->props[0] << std::endl;
     // std::cout << "dmat.G = " << dmat->props[1] << std::endl;
 }
-
 
 } // end namspace
 

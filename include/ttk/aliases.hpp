@@ -3,25 +3,22 @@
 
 namespace ttk {
 
-template<typename T, int M, int D>
-using Scalar = Tensor<T, M, D, 0>;
-
-template<typename T, int M, int D>
+template<Scalar T, int M, int D>
 using Vector = Tensor<T, M, D, 1>;
 
-template<typename T, int M, int D>
-using Tensor2 = Tensor<T, M, D, 2, false>;
+template<Scalar T, int M, int D>
+using Tensor2 = Tensor<T, M, D, 2, FULL>;
 
-template<typename T, int M, int D>
-using SymmetricTensor2 = Tensor<T, M, D, 2, true>;
+template<Scalar T, int M, int D>
+using SymmetricTensor2 = Tensor<T, M, D, 2, SYMM>;
 
-template<typename T, int M, int D>
-using Tensor3 = Tensor<T, M, D, 3, false, false>;
+template<Scalar T, int M, int D>
+using Tensor3 = Tensor<T, M, D, 3, FULL, FULL>;
 
-template<typename T, int M, int D>
-using Tensor4 = Tensor<T, M, D, 4, false, false, false>;
+template<Scalar T, int M, int D>
+using Tensor4 = Tensor<T, M, D, 4, FULL, FULL, FULL>;
 
-template<typename T, int M, int D>
-using MajorSymmetricTensor4 = Tensor<T, M, D, 4, false, true, false>;
+template<Scalar T, int M, int D>
+using MajorSymmetricTensor4 = Tensor<T, M, D, 4, FULL, SYMM, FULL>;
 
 } // end namespace ttk

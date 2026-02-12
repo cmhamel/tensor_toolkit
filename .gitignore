@@ -20,3 +20,6 @@ sandbox/
 
 # vs code
 .vscode/
+
+# docs stuff
+docs/

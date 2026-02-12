@@ -1,6 +1,8 @@
 #pragma once
-#include <ttk/core/globals.hpp>
+#include <cmath>
+#include <ttk/core/random.hpp>
 #include <ttk/core/tensor.hpp>
+#include <ttk/aliases.hpp>
 
 namespace ttk {
 
@@ -73,6 +75,66 @@ Tensor<T, M, D, O, Args...> ones() {
     return data;
 }
 
+template<typename T, int M>
+TTK_FUNCTION
+Tensor2<T, M, 3> random_orthogonal(UniformDistribution<T>& dist) {
+    // Expect RNG to provide: double uniform01();
+    // UniformDistribution<T> dist({});
+    // T u1 = seed.uniform01();
+    // T u2 = seed.uniform01();
+    // T u3 = seed.uniform01();
+    T u1 = dist.rand();
+    T u2 = dist.rand();
+    T u3 = dist.rand();
+
+    const T two_pi = 6.283185307179586476925286766559;
+
+    T s1 = sqrt(1.0 - u1);
+    T s2 = sqrt(u1);
+
+    T a1 = two_pi * u2;
+    T a2 = two_pi * u3;
+
+    T sin1 = sin(a1);
+    T cos1 = cos(a1);
+    T sin2 = sin(a2);
+    T cos2 = cos(a2);
+
+    // Unit quaternion
+    T q1 = s1 * sin1;
+    T q2 = s1 * cos1;
+    T q3 = s2 * sin2;
+    T q4 = s2 * cos2;
+
+    Tensor2<T, M, 3> out;
+    out.fill(0.0);
+
+    out(0, 0) = 1 - 2 * (q2 * q2 + q3 * q3);
+    out(0, 1) = 2 * (q1 * q2 - q3 * q4);
+    out(0, 2) = 2 * (q1 * q3 + q2 * q4);
+
+    out(1, 0) = 2 * (q1 * q2 + q3 * q4);
+    out(1, 1) = 1 - 2 * (q1 * q1 + q3 * q3);
+    out(1, 2) = 2 * (q2 * q3 - q1 * q4);
+
+    out(2, 0) = 2 * (q1 * q3 - q2 * q4);
+    out(2, 1) = 2 * (q2 * q3 + q1 * q4);
+    out(2, 2) = 1 - 2 * (q1 * q1 + q2 * q2);
+
+    return out;
+}
+
+template<typename TensorType>
+constexpr TensorType uniform() {
+    using T = typename TensorType::ValueType;
+    UniformDistribution<T> dist;
+    TensorType A;
+    for (int i = 0; i < A.Length; ++i) {
+        A.setData(i, dist.rand());
+    }
+    return A;
+}
+
 template<typename T, int M, int D, int O, bool... Args>
 TTK_FUNCTION
 Tensor<T, M, D, O, Args...> zero() {
@@ -88,7 +150,6 @@ Tensor<T, M, D, O, Args...> zeros() {
 }
 
 // todo
-// random tensors
 // higher order identity tensors
 // conversion methods from other types
 

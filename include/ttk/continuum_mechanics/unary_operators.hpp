@@ -3,7 +3,6 @@
 #include <ttk/continuum_mechanics/macros.hpp>
 
 namespace ttk {
-
 // det
 TTK_CONTINUUM_TENSOR_UNARY_OP_SCALAR(det, MaterialTensor2);
 TTK_CONTINUUM_TENSOR_UNARY_OP_SCALAR(det, SpatialTensor2);
@@ -30,5 +29,9 @@ TTK_CONTINUUM_TENSOR_UNARY_OP_SCALAR(trace, MaterialTensor2);
 TTK_CONTINUUM_TENSOR_UNARY_OP_SCALAR(trace, SpatialTensor2);
 TTK_CONTINUUM_TENSOR_UNARY_OP_SCALAR(trace, TwoPointTensor2);
 TTK_CONTINUUM_TENSOR_UNARY_OP_SCALAR(trace, TwoPointTensor2T);
-
+// vol
+TTK_CONTINUUM_TENSOR_UNARY_OP(vol, MaterialTensor2, MaterialTensor2);
+TTK_CONTINUUM_TENSOR_UNARY_OP(vol, SpatialTensor2, SpatialTensor2);
+TTK_CONTINUUM_TENSOR_UNARY_OP(vol, TwoPointTensor2, TwoPointTensor2);
+TTK_CONTINUUM_TENSOR_UNARY_OP(vol, TwoPointTensor2T, TwoPointTensor2T);
 } // end namespace ttk
