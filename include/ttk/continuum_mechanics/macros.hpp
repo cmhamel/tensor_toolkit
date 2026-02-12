@@ -1,6 +1,7 @@
 #pragma once
 #include <ttk/continuum_mechanics/traits.hpp>
 #include <ttk/core/macros.hpp>
+#include <ttk/core/traits.hpp>
 
 namespace ttk {
 
@@ -28,7 +29,7 @@ namespace ttk {
     }
 
 #define TTK_CONTINUUM_TENSOR_BINARY_OP(FUNC, FUNC_STR, IN1, IN2, OUT)\
-    template<typename T, int M, int D>\
+    template<Scalar T, int M, int D>\
     TTK_FUNCTION\
     OUT<T, M, D> FUNC(\
         const IN1<T, M, D>& A,\
@@ -39,7 +40,7 @@ namespace ttk {
 
 
 #define TTK_CONTINUUM_TENSOR_BINARY_OP_SCALAR(FUNC, FUNC_STR, IN1, IN2)\
-    template<typename T, int M, int D>\
+    template<Scalar T, int M, int D>\
     TTK_FUNCTION\
     T FUNC(\
         const IN1<T, M, D>& A,\
@@ -49,19 +50,17 @@ namespace ttk {
     }
 
 #define TTK_CONTINUUM_TENSOR_UNARY_OP(FUNC, IN, OUT)\
-    template<typename T, int M, int D>\
+    template<Scalar T, int M, int D>\
     TTK_FUNCTION\
     OUT<T, M, D> FUNC(const IN<T, M, D>& A) {\
         return FUNC(A.getDataConst());\
     }
 
 #define TTK_CONTINUUM_TENSOR_UNARY_OP_SCALAR(FUNC, IN)\
-    template<typename T, int M, int D>\
+    template<Scalar T, int M, int D>\
     TTK_FUNCTION\
     T FUNC(const IN<T, M, D>& A) {\
         return FUNC(A.getDataConst());\
     }
-
-
 
 } // end namespace ttk

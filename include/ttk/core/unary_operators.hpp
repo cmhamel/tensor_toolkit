@@ -7,30 +7,98 @@
 #include <ttk/aliases.hpp>
 
 namespace ttk {
-
+////////////////////////////////////////////////////////////////////
+// Scalar functions
+////////////////////////////////////////////////////////////////////
 template<Scalar T>
 TTK_FUNCTION
 T abs(T val) {
-    #if defined(__CUDACC__) // device compilation
-        return ::abs(val); // CUDA/HIP device pow
-    #elif defined(__HIPCC__)
-        return ::abs(val);
-    #else
-        return std::abs(val); // host
-    #endif
+#if defined(__CUDACC__) || defined(__HIPCC__) // device compilation
+    return ::abs(val); // CUDA/HIP device pow
+#else
+    return std::abs(val); // host
+#endif
 }
 
 template<Scalar T>
 TTK_FUNCTION
 T cbrt(T base) {
+#if defined(__CUDACC__) || defined(__HIPCC__) // device compilation
+    return ::cbrt(base); // CUDA/HIP device pow
+#else
+    return std::cbrt(base); // host
+#endif
+}
+
+template<Scalar T>
+TTK_FUNCTION
+T exp(T base) {
+#if defined(__CUDACC__) || defined(__HIPCC__) // device compilation
+    return ::exp(base); // CUDA/HIP device pow
+#else
+    return std::exp(base); // host
+#endif
+}
+
+template<Scalar T>
+TTK_FUNCTION
+T log(T base) {
+#if defined(__CUDACC__) || defined(__HIPCC__) // device compilation
+    return ::log(base); // CUDA/HIP device pow
+#else
+    return std::log(base); // host
+#endif
+}
+
+template<Scalar T>
+TTK_FUNCTION
+T max(T val1, T val2) {
+#if defined(__CUDACC__) || defined(__HIPCC__)
+    if constexpr (std::is_same_v<T, float>) {
+        return fmaxf(val1, val2);
+    } else {
+        return fmax(val1, val2); // double
+    }
+#else
+    return std::max(val1, val2);
+#endif
+}
+
+template<Scalar T>
+TTK_FUNCTION
+T min(T val1, T val2) {
+#if defined(__CUDACC__) || defined(__HIPCC__)
+    if constexpr (std::is_same_v<T, float>) {
+        return fminf(val1, val2);
+    } else {
+        return fmin(val1, val2); // double
+    }
+#else
+    return std::min(val1, val2);
+#endif
+}
+
+template<Scalar T>
+TTK_FUNCTION
+T sign(T val) {
+    return __ifelse(val > T(0.0), T(1.0), T(-1.0));
+}
+
+template<Scalar T>
+TTK_FUNCTION
+T sqrt(T base) {
     #if defined(__CUDACC__) // device compilation
-        return ::cbrt(base); // CUDA/HIP device pow
+        return ::sqrt(base); // CUDA/HIP device pow
     #elif defined(__HIPCC__)
-        return ::cbrt(base);
+        return ::sqrt(base);
     #else
-        return std::cbrt(base); // host
+        return std::sqrt(base); // host
     #endif
 }
+
+////////////////////////////////////////////////////////////////////
+// Tensor functions
+////////////////////////////////////////////////////////////////////
 
 template<Scalar T, int M, int D>
 TTK_FUNCTION
@@ -169,18 +237,6 @@ void dott(
     B.data[_ST2_12] = F10 * F20 + F11 * F21 + F12 * F22; // yz
 } 
 
-template<Scalar T>
-TTK_FUNCTION
-T exp(T base) {
-    #if defined(__CUDACC__) // device compilation
-        return ::exp(base); // CUDA/HIP device pow
-    #elif defined(__HIPCC__)
-        return ::exp(base);
-    #else
-        return std::exp(base); // host
-    #endif
-}
-
 template<Scalar T, int M, int D>
 TTK_FUNCTION
 SymmetricTensor2<T, M, D> exp(const SymmetricTensor2<T, M, D>& A) {
@@ -279,18 +335,6 @@ SymmetricTensor2<T, M, 3> inv(const SymmetricTensor2<T, M, 3>& A) {
     return inv;
 }
 
-template<Scalar T>
-TTK_FUNCTION
-T log(T base) {
-    #if defined(__CUDACC__) // device compilation
-        return ::log(base); // CUDA/HIP device pow
-    #elif defined(__HIPCC__)
-        return ::log(base);
-    #else
-        return std::log(base); // host
-    #endif
-}
-
 template<Scalar T, int M, int D>
 TTK_FUNCTION
 SymmetricTensor2<T, M, D> log(const SymmetricTensor2<T, M, D>& A) {
@@ -301,29 +345,6 @@ SymmetricTensor2<T, M, D> log(const SymmetricTensor2<T, M, D>& A) {
     return from_eigen(evals, evecs);
 }
 
-template<Scalar T>
-TTK_FUNCTION
-T max(T val1, T val2) {
-    #if defined(__CUDACC__) // device compilation
-        return ::max(val1, val2); // CUDA/HIP device pow
-    #elif defined(__HIPCC__)
-        return ::max(val, val2);
-    #else
-        return std::max(val1, val2); // host
-    #endif
-}
-
-template<Scalar T>
-TTK_FUNCTION
-T min(T val1, T val2) {
-    #if defined(__CUDACC__) // device compilation
-        return ::min(val1, val2); // CUDA/HIP device pow
-    #elif defined(__HIPCC__)
-        return ::min(val1, val2);
-    #else
-        return std::min(val1, val2); // host
-    #endif
-}
 
 template<Scalar T, int M, int D, int O, int... Syms>
 TTK_FUNCTION
@@ -378,9 +399,6 @@ SymmetricTensor2<T, M, D> otimes(const Vector<T, M, D>& a) {
     return A;
 }
 
-// TODO
-// sqrt
-
 template<Scalar T>
 TTK_FUNCTION
 T pow(T base, T exp) {
@@ -403,18 +421,6 @@ SymmetricTensor2<T, M, D> pow(const SymmetricTensor2<T, M, D>& A, const T& m) {
     return from_eigen(evals, evecs);
 }
 
-template<Scalar T>
-TTK_FUNCTION
-T sqrt(T base) {
-    #if defined(__CUDACC__) // device compilation
-        return ::sqrt(base); // CUDA/HIP device pow
-    #elif defined(__HIPCC__)
-        return ::sqrt(base);
-    #else
-        return std::sqrt(base); // host
-    #endif
-}
-
 template<Scalar T, int M, int D>
 TTK_FUNCTION
 SymmetricTensor2<T, M, D> sqrt(const SymmetricTensor2<T, M, D>& A) {
@@ -425,11 +431,7 @@ SymmetricTensor2<T, M, D> sqrt(const SymmetricTensor2<T, M, D>& A) {
     return from_eigen(evals, evecs);
 }
 
-template<Scalar T>
-TTK_FUNCTION
-T sign(T val) {
-    return __ifelse(val > T(0.0), T(1.0), T(-1.0));
-}
+
 
 
 // TODO need more methods for tranpose
@@ -447,9 +449,6 @@ T sign(T val) {
 // minortranspose
 // rotate
 // rotationtensor
-// skew
-// symmetric
-// template<Scalar T, int M, int D>
 
 template<Scalar T, int M, int D>
 Tensor2<T, M, D> skew(const Tensor2<T, M, D>& A) {

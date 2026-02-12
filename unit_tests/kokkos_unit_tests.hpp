@@ -1,67 +1,71 @@
 #pragma once
-// #include <Kokkos_Core.hpp>
 
-// template <typename TensorType>
-// struct TensorTestFunctor {
-//     TensorType tensor;
-//     Kokkos::View<typename TensorType::ValueType*, Kokkos::DefaultExecutionSpace> out;
+#if TENSOR_TOOLKIT_ENABLE_KOKKOS
+#include <Kokkos_Core.hpp>
 
-//     TensorTestFunctor(TensorType t) : tensor(t), out("out", TensorType::Length) {}
+template <typename TensorType>
+struct TensorTestFunctor {
+    TensorType tensor;
+    Kokkos::View<typename TensorType::ValueType*, Kokkos::DefaultExecutionSpace> out;
 
-//     KOKKOS_INLINE_FUNCTION
-//     void operator()(const int i) const {
-//         // simple test: copy tensor data to output
-//         auto data = tensor.getData();
-//         if (i < TensorType::Length) {
-//             out(i) = data[i];
-//         }
-//     }
+    TensorTestFunctor(TensorType t) : tensor(t), out("out", TensorType::Length) {}
 
-//     auto get_view() const { return out; }
-// };
+    KOKKOS_INLINE_FUNCTION
+    void operator()(const int i) const {
+        // simple test: copy tensor data to output
+        auto data = tensor.getDataConst();
+        if (i < TensorType::Length) {
+            out(i) = data[i];
+        }
+    }
 
-// TEST(TTKUnitTests, TestKokkos) {
-//     Kokkos::ScopeGuard kokkosGuard; // initialize/teardown Kokkos
-//     // Create a tensor on the host
-//     ttk::Tensor2<double, 3> tens({
-//         1, 2, 3,
-//         4, 5, 6,
-//         7, 8, 9
-//     });
-//     // Wrap it in a functor
-//     TensorTestFunctor<decltype(tens)> functor(tens);
+    auto get_view() const { return out; }
+};
 
-//     // Launch a Kokkos parallel_for
-//     Kokkos::parallel_for("TestTensor", tens.getLength(), functor);
+TEST(TTKUnitTests, TestKokkos) {
+    Kokkos::ScopeGuard kokkosGuard; // initialize/teardown Kokkos
+    // Create a tensor on the host
+    ttk::Tensor2<double, ttk::CARTESIAN, 3> tens({
+        1, 2, 3,
+        4, 5, 6,
+        7, 8, 9
+    });
+    // Wrap it in a functor
+    TensorTestFunctor<decltype(tens)> functor(tens);
 
-//     std::cout << "Kokkos execution space: "
-//         << typeid(Kokkos::DefaultExecutionSpace).name()
-//         << "\n";
-//     std::cout << "Memory space: "
-//         << typeid(Kokkos::DefaultExecutionSpace::memory_space).name()
-//         << "\n";
+    // Launch a Kokkos parallel_for
+    Kokkos::parallel_for("TestTensor", tens.Length, functor);
 
-//     Kokkos::View<double*> d_view("d_view", 10);
-//     Kokkos::fence();
+    std::cout << "Kokkos execution space: "
+              << typeid(Kokkos::DefaultExecutionSpace).name()
+              << "\n";
+    std::cout << "Memory space: "
+              << typeid(Kokkos::DefaultExecutionSpace::memory_space).name()
+              << "\n";
 
-//     // Copy back to host for checking
-//     auto h_out = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), functor.get_view());
+    Kokkos::View<double*> d_view("d_view", 10);
+    Kokkos::fence();
 
-//     // Check all elements
-//     for (int i = 0; i < tens.getLength(); ++i) {
-//         EXPECT_EQ(h_out(i), tens.getData()[i]);
-//     }
+    // Copy back to host for checking
+    auto h_out = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), functor.get_view());
 
-//     // simple kokkos test example
-//     Kokkos::View<int*, Kokkos::DefaultExecutionSpace> data("data", 1);
+    // Check all elements
+    for (int i = 0; i < tens.Length; ++i) {
+        EXPECT_EQ(h_out(i), tens.getDataConst()[i]);
+    }
 
-//     Kokkos::parallel_for("test_device", 1, KOKKOS_LAMBDA(const int i){
-//         data(i) = 42;  // runs on device if backend is CUDA/HIP/OpenMP GPU
-//     });
+    // simple kokkos test example
+    Kokkos::View<int*, Kokkos::DefaultExecutionSpace> data("data", 1);
 
-//     Kokkos::fence();  // ensure kernel completes
+    Kokkos::parallel_for("test_device", 1, KOKKOS_LAMBDA(const int i){
+        data(i) = 42;  // runs on device if backend is CUDA/HIP/OpenMP GPU
+    });
 
-//     auto h_data = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), data);
-//     EXPECT_EQ(h_data(0), 42);
+    Kokkos::fence();  // ensure kernel completes
 
-// }
+    auto h_data = Kokkos::create_mirror_view_and_copy(Kokkos::HostSpace(), data);
+    EXPECT_EQ(h_data(0), 42);
+
+}
+
+#endif
